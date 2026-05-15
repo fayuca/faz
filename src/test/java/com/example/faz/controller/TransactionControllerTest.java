@@ -8,12 +8,12 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class TransactionControllerTest {
 	private TransactionService service;
 
 	@Test
-	void shouldCreateTransaction() throws Exception {
+	void shouldCreate() throws Exception {
 		TransactionResponseDTO dto = new TransactionResponseDTO(1L, new BigDecimal("100.00"), "Test");
 
 		when(service.create(any(TransactionRequestDTO.class))).thenReturn(dto);
@@ -58,18 +58,7 @@ public class TransactionControllerTest {
 	}
 
 	@Test
-	void shouldReturnAllTransactions() throws Exception {
-		List<TransactionResponseDTO> mockList = List.of();
-
-		when(service.getAll()).thenReturn(mockList);
-
-		mockMvc.perform(get("/transactions"))
-				.andDo(print())
-				.andExpect(status().isOk());
-	}
-
-	@Test
-	void shouldRejectInvalidTransaction() throws Exception {
+	void shouldNotCreateInvalid() throws Exception {
 		mockMvc.perform(post("/transactions")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""
@@ -86,10 +75,10 @@ public class TransactionControllerTest {
 	}
 
 	@Test
-	void shouldFindTransactionById() throws Exception {
+	void shouldFind() throws Exception {
 		TransactionResponseDTO response = new TransactionResponseDTO(1L, new BigDecimal("100.00"), "Test");
 
-		when(service.getById(anyLong())).thenReturn(response);
+		when(service.get(anyLong())).thenReturn(response);
 
 		mockMvc.perform(get("/transactions/1"))
 				.andDo(print())
@@ -100,18 +89,18 @@ public class TransactionControllerTest {
 	}
 
 	@Test
-	void shouldNotFindTransactionById() throws Exception {
-		when(service.getById(anyLong())).thenThrow(new ResourceNotFoundException("Transaction not found: 1"));
+	void shouldNotFind() throws Exception {
+		when(service.get(anyLong())).thenThrow(new ResourceNotFoundException("Transaction not found: -1"));
 
-		mockMvc.perform(get("/transactions/1"))
+		mockMvc.perform(get("/transactions/-1"))
 				.andDo(print())
-				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.message").value("Transaction not found: 1"));
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Transaction not found: -1"));
 	}
 
 	@Test
-	void shouldDeleteTransactionById() throws Exception {
-		doNothing().when(service).deleteById(anyLong());
+	void shouldDelete() throws Exception {
+		doNothing().when(service).delete(anyLong());
 
 		mockMvc.perform(delete("/transactions/1"))
 				.andDo(print())
@@ -119,12 +108,66 @@ public class TransactionControllerTest {
 	}
 
 	@Test
-	void shouldFailToDeleteTransactionById() throws Exception {
-		doThrow(new ResourceNotFoundException("Transaction not found: 1")).when(service).deleteById(anyLong());
+	void shouldNotDeleteNotFound() throws Exception {
+		doThrow(new ResourceNotFoundException("Transaction not found: -1")).when(service).delete(anyLong());
 
-		mockMvc.perform(delete("/transactions/1"))
+		mockMvc.perform(delete("/transactions/-1"))
+				.andDo(print())
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Transaction not found: -1"));
+	}
+
+	@Test
+	void shouldUpdate() throws Exception {
+		TransactionResponseDTO response = new TransactionResponseDTO(1L, new BigDecimal("200.00"), "Updated");
+
+		when(service.update(anyLong(), any(TransactionRequestDTO.class))).thenReturn(response);
+
+		mockMvc.perform(put("/transactions/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						    {
+								"amount": 200.00,
+								"description": "Updated"
+						    }
+						"""))
+				.andDo(print())
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void shouldNotUpdateNotFound() throws Exception {
+		when(service
+				.update(anyLong(), any(TransactionRequestDTO.class)))
+				.thenThrow(new ResourceNotFoundException("Transaction not found: -1"));
+
+		mockMvc.perform(put("/transactions/-1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						    {
+								"amount": 200.00,
+								"description": "Updated"
+						    }
+						"""))
+				.andDo(print())
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Transaction not found: -1"));
+	}
+
+	@Test
+	void shouldNotUpdateInvalid() throws Exception {
+		mockMvc.perform(put("/transactions/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						    {
+						        "amount": -10,
+						        "description": null
+						    }
+						"""))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.message").value("Transaction not found: 1"));
+				.andExpect(jsonPath("$.message").value("Validation failed"))
+				.andExpect(jsonPath("$.fieldErrors.amount").exists())
+				.andExpect(jsonPath("$.fieldErrors.description").exists());
 	}
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -27,15 +28,15 @@ public class TransactionController {
 		this.service = service;
 	}
 
-	@PostMapping
-	public TransactionResponseDTO create(@RequestBody @Valid TransactionRequestDTO dto) {
-		return service.create(dto);
-	}
-
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteById(@PathVariable Long id) {
-		service.deleteById(id);
+	public void delete(@PathVariable Long id) {
+		service.delete(id);
+	}
+
+	@GetMapping("/{id}")
+	public TransactionResponseDTO get(@PathVariable Long id) {
+		return service.get(id);
 	}
 
 	@GetMapping
@@ -43,8 +44,13 @@ public class TransactionController {
 		return service.getAll();
 	}
 
-	@GetMapping("/{id}")
-	public TransactionResponseDTO getById(@PathVariable Long id) {
-		return service.getById(id);
+	@PostMapping
+	public TransactionResponseDTO post(@RequestBody @Valid TransactionRequestDTO dto) {
+		return service.create(dto);
+	}
+
+	@PutMapping("/{id}")
+	public TransactionResponseDTO put(@PathVariable Long id, @RequestBody @Valid TransactionRequestDTO dto) {
+		return service.update(id, dto);
 	}
 }

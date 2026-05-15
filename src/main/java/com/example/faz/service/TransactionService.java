@@ -25,20 +25,32 @@ public class TransactionService {
 		return saved.toResponseDTO();
 	}
 
-	public void deleteById(Long id) {
+	public void delete(Long id) {
 		repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + id));
 		repository.deleteById(id);
+	}
+
+	public TransactionResponseDTO get(Long id) throws ResourceNotFoundException {
+		Transaction saved = repository
+				.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + id));
+
+		return saved.toResponseDTO();
 	}
 
 	public List<TransactionResponseDTO> getAll() {
 		return repository.findAll().stream().map(Transaction::toResponseDTO).collect(Collectors.toList());
 	}
 
-	public TransactionResponseDTO getById(Long id) throws ResourceNotFoundException {
-		Transaction saved = repository
+	public TransactionResponseDTO update(Long id, TransactionRequestDTO dto) {
+		Transaction transaction = repository
 				.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + id));
 
+		transaction.setAmount(dto.getAmount());
+		transaction.setDescription(dto.getDescription());
+
+		Transaction saved = repository.save(transaction);
 		return saved.toResponseDTO();
 	}
 }
