@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.faz.dto.TransactionRequestDTO;
+import com.example.faz.dto.TransactionResponseDTO;
 import com.example.faz.entity.Transaction;
 import com.example.faz.service.TransactionService;
 
@@ -21,12 +23,26 @@ public class TransactionController {
 	}
 
 	@GetMapping
-	public List<Transaction> getAll() {
-		return service.getAll();
+	public List<TransactionResponseDTO> getAll() {
+		return service.getAll().stream()
+				.map(t -> new TransactionResponseDTO(
+						t.getId(),
+						t.getAmount(),
+						t.getDescription()))
+				.toList();
 	}
 
 	@PostMapping
-	public Transaction create(@RequestBody Transaction transaction) {
-		return service.create(transaction);
+	public TransactionResponseDTO create(@RequestBody TransactionRequestDTO dto) {
+		Transaction transaction = new Transaction();
+		transaction.setAmount(dto.getAmount());
+		transaction.setDescription(dto.getDescription());
+
+		Transaction saved = service.create(transaction);
+
+		return new TransactionResponseDTO(
+				saved.getId(),
+				saved.getAmount(),
+				saved.getDescription());
 	}
 }

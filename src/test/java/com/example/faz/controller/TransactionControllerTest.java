@@ -31,13 +31,13 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldCreateTransaction() throws Exception {
+		Transaction entity = new Transaction();
+		entity.setId(1L);
+		entity.setAmount(new BigDecimal("100.00"));
+		entity.setDescription("Test");
 
-		Transaction mock = new Transaction();
-		mock.setId(1L);
-		mock.setAmount(new BigDecimal("100.00"));
-		mock.setDescription("Test");
-
-		when(service.create(any(Transaction.class))).thenReturn(mock);
+		when(service.create(any(Transaction.class)))
+				.thenReturn(entity);
 
 		mockMvc.perform(post("/transactions")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -55,8 +55,9 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldReturnAllTransactions() throws Exception {
+		List<com.example.faz.entity.Transaction> mockList = List.of();
 
-		when(service.getAll()).thenReturn(List.of());
+		when(service.getAll()).thenReturn(mockList);
 
 		mockMvc.perform(get("/transactions"))
 				.andExpect(status().isOk());
