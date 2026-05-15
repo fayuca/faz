@@ -38,6 +38,6 @@ public class GlobalExceptionHandler {
 				ex.getMessage(),
 				fieldErrors);
 
-		return ResponseEntity.badRequest().body(apiError);
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
 }
