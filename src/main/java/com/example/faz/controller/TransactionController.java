@@ -2,11 +2,14 @@ package com.example.faz.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.faz.dto.TransactionRequestDTO;
@@ -24,6 +27,17 @@ public class TransactionController {
 		this.service = service;
 	}
 
+	@PostMapping
+	public TransactionResponseDTO create(@RequestBody @Valid TransactionRequestDTO dto) {
+		return service.create(dto);
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteById(@PathVariable Long id) {
+		service.deleteById(id);
+	}
+
 	@GetMapping
 	public List<TransactionResponseDTO> getAll() {
 		return service.getAll();
@@ -32,10 +46,5 @@ public class TransactionController {
 	@GetMapping("/{id}")
 	public TransactionResponseDTO getById(@PathVariable Long id) {
 		return service.getById(id);
-	}
-
-	@PostMapping
-	public TransactionResponseDTO create(@RequestBody @Valid TransactionRequestDTO dto) {
-		return service.create(dto);
 	}
 }

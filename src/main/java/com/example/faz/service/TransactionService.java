@@ -25,6 +25,11 @@ public class TransactionService {
 		return saved.toResponseDTO();
 	}
 
+	public void deleteById(Long id) {
+		repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + id));
+		repository.deleteById(id);
+	}
+
 	public List<TransactionResponseDTO> getAll() {
 		return repository.findAll().stream().map(Transaction::toResponseDTO).collect(Collectors.toList());
 	}

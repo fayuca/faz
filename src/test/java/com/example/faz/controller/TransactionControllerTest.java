@@ -2,7 +2,10 @@ package com.example.faz.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -83,12 +86,12 @@ public class TransactionControllerTest {
 	}
 
 	@Test
-	void shouldReturnTransactionById() throws Exception {
+	void shouldFindTransactionById() throws Exception {
 		TransactionResponseDTO response = new TransactionResponseDTO(1L, new BigDecimal("100.00"), "Test");
 
 		when(service.getById(anyLong())).thenReturn(response);
 
-		mockMvc.perform(get("/transactions/10"))
+		mockMvc.perform(get("/transactions/1"))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1))
@@ -98,11 +101,30 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldNotFindTransactionById() throws Exception {
-		when(service.getById(anyLong())).thenThrow(new ResourceNotFoundException("Transaction not found: 10"));
+		when(service.getById(anyLong())).thenThrow(new ResourceNotFoundException("Transaction not found: 1"));
 
-		mockMvc.perform(get("/transactions/10"))
+		mockMvc.perform(get("/transactions/1"))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.message").value("Transaction not found: 10"));
+				.andExpect(jsonPath("$.message").value("Transaction not found: 1"));
+	}
+
+	@Test
+	void shouldDeleteTransactionById() throws Exception {
+		doNothing().when(service).deleteById(anyLong());
+
+		mockMvc.perform(delete("/transactions/1"))
+				.andDo(print())
+				.andExpect(status().isNoContent());
+	}
+
+	@Test
+	void shouldFailToDeleteTransactionById() throws Exception {
+		doThrow(new ResourceNotFoundException("Transaction not found: 1")).when(service).deleteById(anyLong());
+
+		mockMvc.perform(delete("/transactions/1"))
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").value("Transaction not found: 1"));
 	}
 }
