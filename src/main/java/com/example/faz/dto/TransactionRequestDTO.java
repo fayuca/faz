@@ -2,8 +2,15 @@ package com.example.faz.dto;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 public class TransactionRequestDTO {
+	@NotNull
+	@Positive
 	private BigDecimal amount;
+
+	@NotNull
 	private String description;
 
 	public TransactionRequestDTO() {

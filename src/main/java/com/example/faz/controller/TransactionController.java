@@ -13,6 +13,8 @@ import com.example.faz.dto.TransactionResponseDTO;
 import com.example.faz.entity.Transaction;
 import com.example.faz.service.TransactionService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/transactions")
 public class TransactionController {
@@ -33,7 +35,7 @@ public class TransactionController {
 	}
 
 	@PostMapping
-	public TransactionResponseDTO create(@RequestBody TransactionRequestDTO dto) {
+	public TransactionResponseDTO create(@RequestBody @Valid TransactionRequestDTO dto) {
 		Transaction transaction = new Transaction();
 		transaction.setAmount(dto.getAmount());
 		transaction.setDescription(dto.getDescription());

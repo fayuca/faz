@@ -62,4 +62,17 @@ public class TransactionControllerTest {
 		mockMvc.perform(get("/transactions"))
 				.andExpect(status().isOk());
 	}
+
+	@Test
+	void shouldRejectInvalidTransaction() throws Exception {
+		mockMvc.perform(post("/transactions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						    {
+						        "amount": -10,
+						        "description": null
+						    }
+						"""))
+				.andExpect(status().isBadRequest());
+	}
 }
