@@ -19,7 +19,7 @@ public class PingControllerTest {
 	private MockMvc mvc;
 
 	@Test
-	public void getping() throws Exception {
+	public void shouldPong() throws Exception {
 		mvc.perform(get("/ping").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.response").value("pong"));
