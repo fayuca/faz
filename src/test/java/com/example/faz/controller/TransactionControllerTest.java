@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,6 +48,7 @@ public class TransactionControllerTest {
 						        "description": "Test"
 						    }
 						"""))
+				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1))
 				.andExpect(jsonPath("$.amount").value(100.00))
@@ -60,6 +62,7 @@ public class TransactionControllerTest {
 		when(service.getAll()).thenReturn(mockList);
 
 		mockMvc.perform(get("/transactions"))
+				.andDo(print())
 				.andExpect(status().isOk());
 	}
 
@@ -73,6 +76,10 @@ public class TransactionControllerTest {
 						        "description": null
 						    }
 						"""))
-				.andExpect(status().isBadRequest());
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").value("Validation failed"))
+				.andExpect(jsonPath("$.fieldErrors.amount").exists())
+				.andExpect(jsonPath("$.fieldErrors.description").exists());
 	}
 }
