@@ -13,7 +13,9 @@ public class TransactionRequestDTO {
 	@NotNull
 	private String description;
 
-	public TransactionRequestDTO() {
+	public TransactionRequestDTO(BigDecimal amount, String description) {
+		this.amount = amount;
+		this.description = description;
 	}
 
 	public BigDecimal getAmount() {

@@ -27,4 +27,17 @@ public class GlobalExceptionHandler {
 
 		return ResponseEntity.badRequest().body(apiError);
 	}
+
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<ApiError> resourceNotFound(ResourceNotFoundException ex) {
+		Map<String, String> fieldErrors = new HashMap<>();
+
+		ApiError apiError = new ApiError(
+				LocalDateTime.now(),
+				HttpStatus.NOT_FOUND.value(),
+				ex.getMessage(),
+				fieldErrors);
+
+		return ResponseEntity.badRequest().body(apiError);
+	}
 }

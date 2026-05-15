@@ -1,6 +1,7 @@
 package com.example.faz.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -18,7 +19,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.example.faz.entity.Transaction;
+import com.example.faz.dto.TransactionRequestDTO;
+import com.example.faz.dto.TransactionResponseDTO;
+import com.example.faz.exception.ResourceNotFoundException;
 import com.example.faz.service.TransactionService;
 
 @WebMvcTest(TransactionController.class)
@@ -32,13 +35,9 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldCreateTransaction() throws Exception {
-		Transaction entity = new Transaction();
-		entity.setId(1L);
-		entity.setAmount(new BigDecimal("100.00"));
-		entity.setDescription("Test");
+		TransactionResponseDTO dto = new TransactionResponseDTO(1L, new BigDecimal("100.00"), "Test");
 
-		when(service.create(any(Transaction.class)))
-				.thenReturn(entity);
+		when(service.create(any(TransactionRequestDTO.class))).thenReturn(dto);
 
 		mockMvc.perform(post("/transactions")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -57,7 +56,7 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldReturnAllTransactions() throws Exception {
-		List<com.example.faz.entity.Transaction> mockList = List.of();
+		List<TransactionResponseDTO> mockList = List.of();
 
 		when(service.getAll()).thenReturn(mockList);
 
@@ -81,5 +80,29 @@ public class TransactionControllerTest {
 				.andExpect(jsonPath("$.message").value("Validation failed"))
 				.andExpect(jsonPath("$.fieldErrors.amount").exists())
 				.andExpect(jsonPath("$.fieldErrors.description").exists());
+	}
+
+	@Test
+	void shouldReturnTransactionById() throws Exception {
+		TransactionResponseDTO response = new TransactionResponseDTO(1L, new BigDecimal("100.00"), "Test");
+
+		when(service.getById(anyLong())).thenReturn(response);
+
+		mockMvc.perform(get("/transactions/10"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.amount").value(100.00))
+				.andExpect(jsonPath("$.description").value("Test"));
+	}
+
+	@Test
+	void shouldNotFindTransactionById() throws Exception {
+		when(service.getById(anyLong())).thenThrow(new ResourceNotFoundException("Transaction not found: 10"));
+
+		mockMvc.perform(get("/transactions/10"))
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").value("Transaction not found: 10"));
 	}
 }

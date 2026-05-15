@@ -7,9 +7,6 @@ public class TransactionResponseDTO {
 	private BigDecimal amount;
 	private String description;
 
-	public TransactionResponseDTO() {
-	}
-
 	public TransactionResponseDTO(Long id, BigDecimal amount, String description) {
 		this.id = id;
 		this.amount = amount;

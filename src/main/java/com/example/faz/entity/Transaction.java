@@ -3,6 +3,9 @@ package com.example.faz.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.example.faz.dto.TransactionRequestDTO;
+import com.example.faz.dto.TransactionResponseDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,4 +34,24 @@ public class Transaction {
 
 	@Column
 	private LocalDateTime date;
+
+	public TransactionRequestDTO toRequestDTO() {
+		return new TransactionRequestDTO(
+				getAmount(),
+				getDescription());
+	}
+
+	public TransactionResponseDTO toResponseDTO() {
+		return new TransactionResponseDTO(
+				getId(),
+				getAmount(),
+				getDescription());
+	}
+
+	public static Transaction fromRequestDTO(TransactionRequestDTO request) {
+		Transaction transaction = new Transaction();
+		transaction.setAmount(request.getAmount());
+		transaction.setDescription(request.getDescription());
+		return transaction;
+	}
 }

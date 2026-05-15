@@ -2,6 +2,7 @@ package com.example.faz.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.faz.dto.TransactionResponseDTO;
 import com.example.faz.entity.Transaction;
 import com.example.faz.repository.TransactionRepository;
 
@@ -34,19 +36,19 @@ public class TransactionServiceTest {
 		saved.setId(1L);
 		saved.setAmount(new BigDecimal("50.00"));
 
-		when(repository.save(input)).thenReturn(saved);
+		when(repository.save(refEq(input))).thenReturn(saved);
 
-		Transaction result = service.create(input);
+		TransactionResponseDTO response = service.create(input.toRequestDTO());
 
-		assertEquals(1L, result.getId());
-		assertEquals(new BigDecimal("50.00"), result.getAmount());
+		assertEquals(1L, response.getId());
+		assertEquals(new BigDecimal("50.00"), response.getAmount());
 	}
 
 	@Test
 	void shouldReturnAllTransactions() {
 		when(repository.findAll()).thenReturn(List.of());
 
-		List<Transaction> result = service.getAll();
+		List<TransactionResponseDTO> result = service.getAll();
 
 		assertTrue(result.isEmpty());
 	}
