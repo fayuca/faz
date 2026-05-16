@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import com.example.faz.exception.ApiErrors;
 import com.example.faz.repository.TransactionRepository;
 
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -43,6 +45,30 @@ public class TransactionIntegrationTest {
 	private TransactionRepository repository;
 
 	// -- TESTS
+
+	@Test
+	void shouldFindAllByDescription() throws Exception {
+		String amount = "100.00";
+		String description = "Found";
+
+		Long id = repository.save(transaction(amount, description)).getId();
+
+		repository.save(transaction("200.00", "NotMe"));
+		repository.save(transaction("300.00", "NotMe"));
+		repository.save(transaction("400.00", "NotMe"));
+
+		// *
+
+		List<TransactionResponse> responses = responses(doGet("/transactions?description=" + description)
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andReturn());
+
+		// 1
+
+		assertEquals(1, responses.size());
+		assertResponse(responses.getFirst(), id, amount, description);
+	}
 
 	@Test
 	void shouldCreate() throws Exception {
@@ -209,6 +235,14 @@ public class TransactionIntegrationTest {
 
 	private TransactionResponse response(MvcResult result) throws JacksonException, UnsupportedEncodingException {
 		return objectMapper.readValue(result.getResponse().getContentAsString(), TransactionResponse.class);
+	}
+
+	private List<TransactionResponse> responses(MvcResult result)
+			throws JacksonException, UnsupportedEncodingException {
+		return objectMapper.readValue(
+				result.getResponse().getContentAsString(),
+				new TypeReference<List<TransactionResponse>>() {
+				});
 	}
 
 	// -- METHODS
