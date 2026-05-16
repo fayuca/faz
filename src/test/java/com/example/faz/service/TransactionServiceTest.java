@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 import com.example.faz.entity.Transaction;
+import com.example.faz.exception.ApiErrors;
 import com.example.faz.exception.ResourceNotFoundException;
 import com.example.faz.repository.TransactionRepository;
 
@@ -62,7 +63,7 @@ public class TransactionServiceTest {
 		List<TransactionResponse> responses = service.getAll(null);
 
 		assertEquals(1, responses.size());
-		assertResponse(responses.get(0), id, amount, description);
+		assertResponse(responses.getFirst(), id, amount, description);
 	}
 
 	@Test
@@ -78,7 +79,7 @@ public class TransactionServiceTest {
 		List<TransactionResponse> responses = service.getAll(description);
 
 		assertEquals(1, responses.size());
-		assertResponse(responses.get(0), id, amount, description);
+		assertResponse(responses.getFirst(), id, amount, description);
 	}
 
 	@Test
@@ -112,7 +113,10 @@ public class TransactionServiceTest {
 
 		when(repository.findById(id)).thenReturn(Optional.empty());
 
-		assertThrows(ResourceNotFoundException.class, () -> service.update(id, request));
+		assertEquals(
+				ApiErrors.notFound(id),
+				assertThrows(ResourceNotFoundException.class, () -> service.update(id, request)).getMessage());
+		;
 	}
 
 	// -- ASSERT
