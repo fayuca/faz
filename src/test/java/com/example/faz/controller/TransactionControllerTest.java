@@ -265,16 +265,18 @@ public class TransactionControllerTest {
 		return new TransactionResponse(id, new BigDecimal(amount), description);
 	}
 
+	// -- MAPPERS
+
+	private TransactionResponse response(MvcResult result) throws JacksonException, UnsupportedEncodingException {
+		return objectMapper.readValue(result.getResponse().getContentAsString(), TransactionResponse.class);
+	}
+
 	private List<TransactionResponse> responses(MvcResult result)
 			throws JacksonException, UnsupportedEncodingException {
 		return objectMapper.readValue(
 				result.getResponse().getContentAsString(),
 				new TypeReference<List<TransactionResponse>>() {
 				});
-	}
-
-	private TransactionResponse response(MvcResult result) throws JacksonException, UnsupportedEncodingException {
-		return objectMapper.readValue(result.getResponse().getContentAsString(), TransactionResponse.class);
 	}
 
 	private ApiError apiError(MvcResult result) throws JacksonException, UnsupportedEncodingException {
