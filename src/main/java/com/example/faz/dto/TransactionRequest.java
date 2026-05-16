@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-public class TransactionRequestDTO {
+public class TransactionRequest {
 	@NotNull
 	@Positive
 	private BigDecimal amount;
@@ -13,7 +13,7 @@ public class TransactionRequestDTO {
 	@NotNull
 	private String description;
 
-	public TransactionRequestDTO(BigDecimal amount, String description) {
+	public TransactionRequest(BigDecimal amount, String description) {
 		this.amount = amount;
 		this.description = description;
 	}

@@ -2,12 +2,12 @@ package com.example.faz.dto;
 
 import java.math.BigDecimal;
 
-public class TransactionResponseDTO {
+public class TransactionResponse {
 	private Long id;
 	private BigDecimal amount;
 	private String description;
 
-	public TransactionResponseDTO(Long id, BigDecimal amount, String description) {
+	public TransactionResponse(Long id, BigDecimal amount, String description) {
 		this.id = id;
 		this.amount = amount;
 		this.description = description;

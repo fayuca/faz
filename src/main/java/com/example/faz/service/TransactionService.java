@@ -1,13 +1,13 @@
 package com.example.faz.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.example.faz.dto.TransactionRequestDTO;
-import com.example.faz.dto.TransactionResponseDTO;
+import com.example.faz.dto.TransactionRequest;
+import com.example.faz.dto.TransactionResponse;
 import com.example.faz.entity.Transaction;
+import com.example.faz.exception.ApiErrors;
 import com.example.faz.exception.ResourceNotFoundException;
 import com.example.faz.repository.TransactionRepository;
 
@@ -19,38 +19,40 @@ public class TransactionService {
 		this.repository = repository;
 	}
 
-	public TransactionResponseDTO create(TransactionRequestDTO request) {
-		Transaction transaction = Transaction.fromRequestDTO(request);
+	public TransactionResponse create(TransactionRequest request) {
+		Transaction transaction = Transaction.fromRequest(request);
 		Transaction saved = repository.save(transaction);
-		return saved.toResponseDTO();
+		return saved.toResponse();
 	}
 
 	public void delete(Long id) {
-		repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + id));
+		repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ApiErrors.notFound(id)));
 		repository.deleteById(id);
 	}
 
-	public TransactionResponseDTO get(Long id) throws ResourceNotFoundException {
+	public TransactionResponse get(Long id) throws ResourceNotFoundException {
 		Transaction saved = repository
 				.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException(ApiErrors.notFound(id)));
 
-		return saved.toResponseDTO();
+		return saved.toResponse();
 	}
 
-	public List<TransactionResponseDTO> getAll() {
-		return repository.findAll().stream().map(Transaction::toResponseDTO).collect(Collectors.toList());
+	public List<TransactionResponse> getAll(String description) {
+		return description == null || description.isBlank()
+				? Transaction.toResponses(repository.findAll())
+				: Transaction.toResponses(repository.findByDescriptionContainingIgnoreCase(description));
 	}
 
-	public TransactionResponseDTO update(Long id, TransactionRequestDTO dto) {
+	public TransactionResponse update(Long id, TransactionRequest request) {
 		Transaction transaction = repository
 				.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException(ApiErrors.notFound(id)));
 
-		transaction.setAmount(dto.getAmount());
-		transaction.setDescription(dto.getDescription());
+		transaction.setAmount(request.getAmount());
+		transaction.setDescription(request.getDescription());
 
 		Transaction saved = repository.save(transaction);
-		return saved.toResponseDTO();
+		return saved.toResponse();
 	}
 }

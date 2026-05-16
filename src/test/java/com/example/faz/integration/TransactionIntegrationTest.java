@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.faz.entity.Transaction;
+import com.example.faz.exception.ApiErrors;
 import com.example.faz.repository.TransactionRepository;
 
 @SpringBootTest
@@ -94,7 +95,7 @@ public class TransactionIntegrationTest {
 						"""))
 				.andDo(print())
 				.andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.message").value("Transaction not found: -1"));
+				.andExpect(jsonPath("$.message").value(ApiErrors.notFound(-1L)));
 	}
 
 	@Test
@@ -109,7 +110,7 @@ public class TransactionIntegrationTest {
 						"""))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.message").value("Validation failed"))
+				.andExpect(jsonPath("$.message").value(ApiErrors.VALIDATION_FAILED))
 				.andExpect(jsonPath("$.fieldErrors.amount").exists())
 				.andExpect(jsonPath("$.fieldErrors.description").exists());
 	}

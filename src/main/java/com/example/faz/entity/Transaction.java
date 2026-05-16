@@ -2,9 +2,11 @@ package com.example.faz.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import com.example.faz.dto.TransactionRequestDTO;
-import com.example.faz.dto.TransactionResponseDTO;
+import com.example.faz.dto.TransactionRequest;
+import com.example.faz.dto.TransactionResponse;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,23 +37,27 @@ public class Transaction {
 	@Column
 	private LocalDateTime date;
 
-	public TransactionRequestDTO toRequestDTO() {
-		return new TransactionRequestDTO(
+	public TransactionRequest toRequest() {
+		return new TransactionRequest(
 				getAmount(),
 				getDescription());
 	}
 
-	public TransactionResponseDTO toResponseDTO() {
-		return new TransactionResponseDTO(
+	public TransactionResponse toResponse() {
+		return new TransactionResponse(
 				getId(),
 				getAmount(),
 				getDescription());
 	}
 
-	public static Transaction fromRequestDTO(TransactionRequestDTO request) {
+	public static Transaction fromRequest(TransactionRequest request) {
 		Transaction transaction = new Transaction();
 		transaction.setAmount(request.getAmount());
 		transaction.setDescription(request.getDescription());
 		return transaction;
+	}
+
+	public static List<TransactionResponse> toResponses(List<Transaction> transactions) {
+		return transactions.stream().map(Transaction::toResponse).collect(Collectors.toList());
 	}
 }
