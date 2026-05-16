@@ -3,9 +3,11 @@ package com.example.faz.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -67,9 +69,8 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		TransactionResponse response = response(result);
-		assertEquals(id, response.getId());
-		assertEquals(amount, response.getAmount().toString());
-		assertEquals(description, response.getDescription());
+
+		assertResponse(response, id, amount, description);
 	}
 
 	@Test
@@ -83,9 +84,8 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		ApiError apiError = apiError(result);
-		assertEquals(ApiErrors.VALIDATION_FAILED, apiError.getMessage());
-		assertTrue(apiError.getFieldErrors().containsKey("amount"));
-		assertTrue(apiError.getFieldErrors().containsKey("description"));
+
+		assertApiError(apiError, ApiErrors.VALIDATION_FAILED, "amount", "description");
 	}
 
 	@Test
@@ -104,9 +104,8 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		TransactionResponse response = response(result);
-		assertEquals(id, response.getId());
-		assertEquals(amount, response.getAmount().toString());
-		assertEquals(description, response.getDescription());
+
+		assertResponse(response, id, amount, description);
 	}
 
 	@Test
@@ -125,10 +124,9 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		List<TransactionResponse> responses = responses(result);
+
 		assertEquals(1, responses.size());
-		assertEquals(id, responses.get(0).getId());
-		assertEquals(amount, responses.get(0).getAmount().toString());
-		assertEquals(description, responses.get(0).getDescription());
+		assertResponse(responses.get(0), id, amount, description);
 	}
 
 	@Test
@@ -148,9 +146,7 @@ public class TransactionControllerTest {
 
 		List<TransactionResponse> responses = responses(result);
 		assertEquals(1, responses.size());
-		assertEquals(id, responses.get(0).getId());
-		assertEquals(amount, responses.get(0).getAmount().toString());
-		assertEquals(description, responses.get(0).getDescription());
+		assertResponse(responses.get(0), id, amount, description);
 	}
 
 	@Test
@@ -168,7 +164,7 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		ApiError apiError = apiError(result);
-		assertEquals(message, apiError.getMessage());
+		assertApiError(apiError, message);
 	}
 
 	@Test
@@ -180,6 +176,8 @@ public class TransactionControllerTest {
 		doDelete("/transactions/" + id)
 				.andDo(print())
 				.andExpect(status().isNoContent());
+
+		verify(service).delete(id);
 	}
 
 	@Test
@@ -197,7 +195,7 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		ApiError apiError = apiError(result);
-		assertEquals(message, apiError.getMessage());
+		assertApiError(apiError, message);
 	}
 
 	@Test
@@ -216,9 +214,7 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		TransactionResponse response = response(result);
-		assertEquals(id, response.getId());
-		assertEquals(amount, response.getAmount().toString());
-		assertEquals(description, response.getDescription());
+		assertResponse(response, id, amount, description);
 	}
 
 	@Test
@@ -239,7 +235,7 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		ApiError apiError = apiError(result);
-		assertEquals(message, apiError.getMessage());
+		assertApiError(apiError, message);
 	}
 
 	@Test
@@ -250,9 +246,22 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		ApiError apiError = apiError(result);
-		assertEquals(ApiErrors.VALIDATION_FAILED, apiError.getMessage());
-		assertTrue(apiError.getFieldErrors().containsKey("amount"));
-		assertTrue(apiError.getFieldErrors().containsKey("description"));
+		assertApiError(apiError, ApiErrors.VALIDATION_FAILED, "amount", "description");
+	}
+
+	// -- ASSERT
+
+	private void assertApiError(ApiError apiError, String message, String... fields) {
+		assertEquals(message, apiError.getMessage());
+		for (String field : fields) {
+			assertTrue(apiError.getFieldErrors().containsKey(field));
+		}
+	}
+
+	private void assertResponse(TransactionResponse response, Long id, String amount, String description) {
+		assertEquals(id, response.getId());
+		assertEquals(amount, response.getAmount().toString());
+		assertEquals(description, response.getDescription());
 	}
 
 	// -- FACTORIES
@@ -261,7 +270,7 @@ public class TransactionControllerTest {
 		return new TransactionRequest(new BigDecimal(amount), description);
 	}
 
-	private TransactionResponse response(long id, String amount, String description) {
+	private TransactionResponse response(Long id, String amount, String description) {
 		return new TransactionResponse(id, new BigDecimal(amount), description);
 	}
 

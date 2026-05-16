@@ -20,9 +20,9 @@ public class TransactionService {
 	}
 
 	public TransactionResponse create(TransactionRequest request) {
-		Transaction transaction = Transaction.fromRequest(request);
+		Transaction transaction = Transaction.from(request);
 		Transaction saved = repository.save(transaction);
-		return saved.toResponse();
+		return saved.response();
 	}
 
 	public void delete(Long id) {
@@ -35,13 +35,13 @@ public class TransactionService {
 				.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(ApiErrors.notFound(id)));
 
-		return saved.toResponse();
+		return saved.response();
 	}
 
 	public List<TransactionResponse> getAll(String description) {
 		return description == null || description.isBlank()
-				? Transaction.toResponses(repository.findAll())
-				: Transaction.toResponses(repository.findByDescriptionContainingIgnoreCase(description));
+				? Transaction.responses(repository.findAll())
+				: Transaction.responses(repository.findByDescriptionContainingIgnoreCase(description));
 	}
 
 	public TransactionResponse update(Long id, TransactionRequest request) {
@@ -53,6 +53,6 @@ public class TransactionService {
 		transaction.setDescription(request.getDescription());
 
 		Transaction saved = repository.save(transaction);
-		return saved.toResponse();
+		return saved.response();
 	}
 }

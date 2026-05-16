@@ -37,27 +37,27 @@ public class Transaction {
 	@Column
 	private LocalDateTime date;
 
-	public TransactionRequest toRequest() {
+	public TransactionRequest request() {
 		return new TransactionRequest(
 				getAmount(),
 				getDescription());
 	}
 
-	public TransactionResponse toResponse() {
+	public TransactionResponse response() {
 		return new TransactionResponse(
 				getId(),
 				getAmount(),
 				getDescription());
 	}
 
-	public static Transaction fromRequest(TransactionRequest request) {
+	public static Transaction from(TransactionRequest request) {
 		Transaction transaction = new Transaction();
 		transaction.setAmount(request.getAmount());
 		transaction.setDescription(request.getDescription());
 		return transaction;
 	}
 
-	public static List<TransactionResponse> toResponses(List<Transaction> transactions) {
-		return transactions.stream().map(Transaction::toResponse).collect(Collectors.toList());
+	public static List<TransactionResponse> responses(List<Transaction> transactions) {
+		return transactions.stream().map(Transaction::response).collect(Collectors.toList());
 	}
 }

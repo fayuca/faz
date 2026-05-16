@@ -24,93 +24,116 @@ import com.example.faz.repository.TransactionRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
-
 	@Mock
 	private TransactionRepository repository;
 
 	@InjectMocks
 	private TransactionService service;
 
+	// -- TESTS
+
 	@Test
 	void shouldSave() {
-		Transaction input = new Transaction();
-		input.setAmount(new BigDecimal("50.00"));
+		Long id = 1L;
+		String amount = "100.00";
+		String description = "Test";
 
-		Transaction saved = new Transaction();
-		saved.setId(1L);
-		saved.setAmount(new BigDecimal("50.00"));
+		TransactionRequest request = request(amount, description);
 
-		when(repository.save(refEq(input))).thenReturn(saved);
+		when(repository
+				.save(refEq(Transaction.from(request))))
+				.thenReturn(transaction(id, amount, description));
 
-		TransactionResponse response = service.create(input.toRequest());
+		TransactionResponse response = service.create(request);
 
-		assertEquals(1L, response.getId());
-		assertEquals(new BigDecimal("50.00"), response.getAmount());
+		assertResponse(response, id, amount, description);
 	}
 
 	@Test
 	void shouldReturnAll() {
-		when(repository.findAll())
-				.thenReturn(List.of(
-						transaction("1.00", null),
-						transaction("2.00", null),
-						transaction("3.00", null)));
+		Long id = 1L;
+		String amount = "100.00";
+		String description = "Test";
 
-		List<TransactionResponse> result = service.getAll(null);
+		when(repository
+				.findAll())
+				.thenReturn(List.of(transaction(id, amount, description)));
 
-		assertEquals(result.size(), 3);
-		assertEquals(result.get(0).getAmount(), new BigDecimal("1.00"));
-		assertEquals(result.get(1).getAmount(), new BigDecimal("2.00"));
-		assertEquals(result.get(2).getAmount(), new BigDecimal("3.00"));
+		List<TransactionResponse> responses = service.getAll(null);
+
+		assertEquals(1, responses.size());
+		assertResponse(responses.get(0), id, amount, description);
 	}
 
 	@Test
 	void shouldReturnByDescription() {
-		when(repository.findByDescriptionContainingIgnoreCase("b"))
-				.thenReturn(List.of(transaction("2.00", "b")));
+		Long id = 1L;
+		String amount = "100.00";
+		String description = "Test";
 
-		List<TransactionResponse> result = service.getAll("b");
+		when(repository
+				.findByDescriptionContainingIgnoreCase(description))
+				.thenReturn(List.of(transaction(id, amount, description)));
 
-		assertEquals(result.size(), 1);
-		assertEquals(result.get(0).getAmount(), new BigDecimal("2.00"));
-		assertEquals(result.get(0).getDescription(), "b");
+		List<TransactionResponse> responses = service.getAll(description);
+
+		assertEquals(1, responses.size());
+		assertResponse(responses.get(0), id, amount, description);
 	}
 
 	@Test
 	void shouldUpdate() {
-		Transaction existing = new Transaction();
-		existing.setId(1L);
-		existing.setAmount(new BigDecimal("100.00"));
-		existing.setDescription("Old");
+		Long id = 1L;
 
-		TransactionRequest request = new TransactionRequest(
-				new BigDecimal("200.00"),
-				"Updated");
+		String oldAmount = "100.00";
+		String oldDescription = "Old";
 
-		when(repository.findById(1L)).thenReturn(Optional.of(existing));
+		String newAmount = "200.00";
+		String newDescription = "New";
+
+		Transaction existing = transaction(id, oldAmount, oldDescription);
+		TransactionRequest request = request(newAmount, newDescription);
+
+		when(repository.findById(id)).thenReturn(Optional.of(existing));
 		when(repository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		TransactionResponse result = service.update(1L, request);
+		TransactionResponse response = service.update(id, request);
 
-		assertEquals("Updated", result.getDescription());
-		assertEquals(0, result.getAmount().compareTo(new BigDecimal("200.00")));
+		assertResponse(response, id, newAmount, newDescription);
 	}
 
 	@Test
 	void shouldNotUpdateNotFound() {
-		TransactionRequest request = new TransactionRequest(
-				new BigDecimal("100.00"),
-				"Test");
+		Long id = 1L;
+		String amount = "100.00";
+		String description = "Test";
 
-		when(repository.findById(1L)).thenReturn(Optional.empty());
+		TransactionRequest request = request(amount, description);
 
-		assertThrows(ResourceNotFoundException.class, () -> service.update(1L, request));
+		when(repository.findById(id)).thenReturn(Optional.empty());
+
+		assertThrows(ResourceNotFoundException.class, () -> service.update(id, request));
 	}
 
-	private Transaction transaction(String amount, String description) {
-		Transaction t = new Transaction();
-		t.setAmount(new BigDecimal(amount));
-		t.setDescription(description);
-		return t;
+	// -- ASSERT
+
+	private void assertResponse(TransactionResponse response, Long id, String amount, String description) {
+		assertEquals(id, response.getId());
+		assertEquals(amount, response.getAmount().toString());
+		assertEquals(description, response.getDescription());
+	}
+
+	// -- FACTORIES
+
+	private TransactionRequest request(String amount, String description) {
+		return new TransactionRequest(new BigDecimal(amount), description);
+	}
+
+	private Transaction transaction(Long id, String amount, String description) {
+		Transaction transaction = new Transaction();
+		transaction.setId(id);
+		transaction.setAmount(new BigDecimal(amount));
+		transaction.setDescription(description);
+		return transaction;
 	}
 }
