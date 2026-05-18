@@ -15,7 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
+import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 import com.example.faz.entity.Transaction;
@@ -50,33 +52,20 @@ public class TransactionServiceTest {
 		assertResponse(response, id, amount, description);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	void shouldReturnAll() {
+	void shouldReturnByCriteria() {
 		Long id = 1L;
 		String amount = "100.00";
 		String description = "Test";
 
-		when(repository
-				.findAll())
-				.thenReturn(List.of(transaction(id, amount, description)));
-
-		List<TransactionResponse> responses = service.getAll(null);
-
-		assertEquals(1, responses.size());
-		assertResponse(responses.getFirst(), id, amount, description);
-	}
-
-	@Test
-	void shouldReturnByDescription() {
-		Long id = 1L;
-		String amount = "100.00";
-		String description = "Test";
+		TransactionCriteria criteria = new TransactionCriteria();
 
 		when(repository
-				.findByDescriptionContainingIgnoreCase(description))
+				.findAll(any(Specification.class)))
 				.thenReturn(List.of(transaction(id, amount, description)));
 
-		List<TransactionResponse> responses = service.getAll(description);
+		List<TransactionResponse> responses = service.getAll(criteria);
 
 		assertEquals(1, responses.size());
 		assertResponse(responses.getFirst(), id, amount, description);

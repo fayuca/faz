@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 import com.example.faz.entity.Transaction;
 import com.example.faz.exception.ApiErrors;
 import com.example.faz.exception.ResourceNotFoundException;
 import com.example.faz.repository.TransactionRepository;
+import com.example.faz.specification.TransactionSpecifications;
 
 @Service
 public class TransactionService {
@@ -38,10 +40,8 @@ public class TransactionService {
 		return saved.response();
 	}
 
-	public List<TransactionResponse> getAll(String description) {
-		return description == null || description.isBlank()
-				? Transaction.responses(repository.findAll())
-				: Transaction.responses(repository.findByDescriptionContainingIgnoreCase(description));
+	public List<TransactionResponse> getAll(TransactionCriteria criteria) {
+		return Transaction.responses(repository.findAll(TransactionSpecifications.withCriteria(criteria)));
 	}
 
 	public TransactionResponse update(Long id, TransactionRequest request) {

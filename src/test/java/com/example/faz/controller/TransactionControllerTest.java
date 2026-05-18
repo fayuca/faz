@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 import com.example.faz.exception.ApiError;
@@ -108,34 +109,13 @@ public class TransactionControllerTest {
 	}
 
 	@Test
-	void shouldFindAll() throws Exception {
-		Long id = 1L;
-		String amount = "100.00";
-		String description = null;
-
-		when(service
-				.getAll(description))
-				.thenReturn(List.of(response(id, amount, description)));
-
-		MvcResult result = doGet("/transactions")
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andReturn();
-
-		List<TransactionResponse> responses = responses(result);
-
-		assertEquals(1, responses.size());
-		assertResponse(responses.getFirst(), id, amount, description);
-	}
-
-	@Test
-	void shouldFindByDescription() throws Exception {
+	void shouldFindByCriteria() throws Exception {
 		Long id = 1L;
 		String amount = "100.00";
 		String description = "Test";
 
 		when(service
-				.getAll(description))
+				.getAll(any(TransactionCriteria.class)))
 				.thenReturn(List.of(response(id, amount, description)));
 
 		MvcResult result = doGet("/transactions?description=" + description)

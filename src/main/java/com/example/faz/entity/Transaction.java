@@ -5,11 +5,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.faz.dto.TransactionCategory;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,6 +39,9 @@ public class Transaction {
 
 	@Column
 	private LocalDateTime date;
+
+	@Enumerated(EnumType.STRING)
+	private TransactionCategory category;
 
 	public TransactionRequest request() {
 		return new TransactionRequest(

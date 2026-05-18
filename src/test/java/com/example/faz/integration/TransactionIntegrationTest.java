@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
@@ -34,6 +35,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class TransactionIntegrationTest {
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -47,7 +49,32 @@ public class TransactionIntegrationTest {
 	// -- TESTS
 
 	@Test
-	void shouldFindAllByDescription() throws Exception {
+	void shouldFindAll() throws Exception {
+		String amount = "100.00";
+		String description = "Found";
+
+		Long id = repository.save(transaction(amount, description)).getId();
+
+		repository.save(transaction("200.00", "Found"));
+		repository.save(transaction("300.00", "Found"));
+		repository.save(transaction("400.00", "Found"));
+
+		// *
+
+		List<TransactionResponse> responses = responses(doGet("/transactions")
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andReturn());
+		responses.sort((a, b) -> a.getDescription().compareTo(b.getDescription()));
+
+		// 1
+
+		assertEquals(4, responses.size());
+		assertResponse(responses.getFirst(), id, amount, description);
+	}
+
+	@Test
+	void shouldFindByDescription() throws Exception {
 		String amount = "100.00";
 		String description = "Found";
 
