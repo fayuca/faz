@@ -1,7 +1,7 @@
 package com.example.faz.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,8 +42,8 @@ public class TransactionController {
 	}
 
 	@GetMapping
-	public List<TransactionResponse> getAll(@ModelAttribute TransactionCriteria criteria) {
-		return service.getAll(criteria);
+	public Page<TransactionResponse> getAll(@ModelAttribute TransactionCriteria criteria, Pageable pageable) {
+		return service.getAll(criteria, pageable);
 	}
 
 	@PostMapping

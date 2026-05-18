@@ -22,6 +22,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,6 +40,7 @@ import com.example.faz.service.TransactionService;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(TransactionController.class)
@@ -56,7 +59,7 @@ public class TransactionControllerTest {
 	@Test
 	void shouldCreate() throws Exception {
 		Long id = 1L;
-		String amount = "100.00";
+		BigDecimal amount = new BigDecimal("100.00");
 		String description = "Test";
 
 		when(service
@@ -75,7 +78,7 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldNotCreateInvalid() throws Exception {
-		String amount = "-10.00";
+		BigDecimal amount = new BigDecimal("-10.00");
 		String description = null;
 
 		MvcResult result = doPost("/transactions", request(amount, description))
@@ -91,7 +94,7 @@ public class TransactionControllerTest {
 	@Test
 	void shouldFind() throws Exception {
 		Long id = 1L;
-		String amount = "100.00";
+		BigDecimal amount = new BigDecimal("100.00");
 		String description = "Test";
 
 		when(service
@@ -111,14 +114,37 @@ public class TransactionControllerTest {
 	@Test
 	void shouldFindByCriteria() throws Exception {
 		Long id = 1L;
-		String amount = "100.00";
+		BigDecimal amount = new BigDecimal("100.00");
 		String description = "Test";
 
 		when(service
-				.getAll(any(TransactionCriteria.class)))
-				.thenReturn(List.of(response(id, amount, description)));
+				.getAll(any(TransactionCriteria.class), any(Pageable.class)))
+				.thenReturn(new PageImpl<TransactionResponse>(List.of(response(id, amount, description))));
 
 		MvcResult result = doGet("/transactions?description=" + description)
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andReturn();
+
+		List<TransactionResponse> responses = responses(result);
+		assertEquals(1, responses.size());
+		assertResponse(responses.getFirst(), id, amount, description);
+	}
+
+	@Test
+	void shouldFindAllPaged() throws Exception {
+		Long id = 1L;
+		BigDecimal amount = new BigDecimal("100.00");
+		String description = "Test";
+
+		int page = 0;
+		int size = 10;
+
+		when(service
+				.getAll(any(TransactionCriteria.class), any(Pageable.class)))
+				.thenReturn(new PageImpl<TransactionResponse>(List.of(response(id, amount, description))));
+
+		MvcResult result = doGet("/transactions?page=" + page + "&size=" + size)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn();
@@ -180,7 +206,7 @@ public class TransactionControllerTest {
 	@Test
 	void shouldUpdate() throws Exception {
 		Long id = 1L;
-		String amount = "200.00";
+		BigDecimal amount = new BigDecimal("200.00");
 		String description = "Updated";
 
 		when(service
@@ -199,7 +225,7 @@ public class TransactionControllerTest {
 	@Test
 	void shouldNotUpdateNotFound() throws Exception {
 		Long id = -1L;
-		String amount = "200.00";
+		BigDecimal amount = new BigDecimal("200.00");
 		String description = "Updated";
 
 		String message = ApiErrors.notFound(id);
@@ -219,7 +245,7 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldNotUpdateInvalid() throws Exception {
-		MvcResult result = doPut("/transactions/-1", request("-10.00", null))
+		MvcResult result = doPut("/transactions/-1", request(new BigDecimal("-10.00"), null))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andReturn();
@@ -237,20 +263,20 @@ public class TransactionControllerTest {
 		}
 	}
 
-	private void assertResponse(TransactionResponse response, Long id, String amount, String description) {
+	private void assertResponse(TransactionResponse response, Long id, BigDecimal amount, String description) {
 		assertEquals(id, response.getId());
-		assertEquals(amount, response.getAmount().toString());
+		assertEquals(0, amount.compareTo(response.getAmount()));
 		assertEquals(description, response.getDescription());
 	}
 
 	// -- FACTORIES
 
-	private TransactionRequest request(String amount, String description) {
-		return new TransactionRequest(new BigDecimal(amount), description);
+	private TransactionRequest request(BigDecimal amount, String description) {
+		return new TransactionRequest(amount, description);
 	}
 
-	private TransactionResponse response(Long id, String amount, String description) {
-		return new TransactionResponse(id, new BigDecimal(amount), description);
+	private TransactionResponse response(Long id, BigDecimal amount, String description) {
+		return new TransactionResponse(id, amount, description);
 	}
 
 	// -- MAPPERS
@@ -260,9 +286,12 @@ public class TransactionControllerTest {
 	}
 
 	private List<TransactionResponse> responses(MvcResult result)
-			throws JacksonException, UnsupportedEncodingException {
+			throws Exception {
+		JsonNode root = objectMapper.readTree(
+				result.getResponse().getContentAsString());
+
 		return objectMapper.readValue(
-				result.getResponse().getContentAsString(),
+				root.get("content").toString(),
 				new TypeReference<List<TransactionResponse>>() {
 				});
 	}

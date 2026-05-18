@@ -15,6 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.example.faz.dto.TransactionCriteria;
@@ -38,7 +43,7 @@ public class TransactionServiceTest {
 	@Test
 	void shouldSave() {
 		Long id = 1L;
-		String amount = "100.00";
+		BigDecimal amount = new BigDecimal("100.00");
 		String description = "Test";
 
 		TransactionRequest request = request(amount, description);
@@ -56,29 +61,29 @@ public class TransactionServiceTest {
 	@Test
 	void shouldReturnByCriteria() {
 		Long id = 1L;
-		String amount = "100.00";
+		BigDecimal amount = new BigDecimal("100.00");
 		String description = "Test";
 
 		TransactionCriteria criteria = new TransactionCriteria();
 
-		when(repository
-				.findAll(any(Specification.class)))
-				.thenReturn(List.of(transaction(id, amount, description)));
+		when(repository.findAll(any(Specification.class), any(Pageable.class)))
+				.thenReturn(new PageImpl<Transaction>(List.of(transaction(id, amount, description))));
 
-		List<TransactionResponse> responses = service.getAll(criteria);
+		Page<TransactionResponse> page = service.getAll(criteria,
+				PageRequest.of(0, 10, Sort.by("amount").descending()));
 
-		assertEquals(1, responses.size());
-		assertResponse(responses.getFirst(), id, amount, description);
+		assertEquals(1, page.getSize());
+		assertResponse(page.getContent().getFirst(), id, amount, description);
 	}
 
 	@Test
 	void shouldUpdate() {
 		Long id = 1L;
 
-		String oldAmount = "100.00";
+		BigDecimal oldAmount = new BigDecimal("100.00");
 		String oldDescription = "Old";
 
-		String newAmount = "200.00";
+		BigDecimal newAmount = new BigDecimal("200.00");
 		String newDescription = "New";
 
 		Transaction existing = transaction(id, oldAmount, oldDescription);
@@ -95,7 +100,7 @@ public class TransactionServiceTest {
 	@Test
 	void shouldNotUpdateNotFound() {
 		Long id = 1L;
-		String amount = "100.00";
+		BigDecimal amount = new BigDecimal("100.00");
 		String description = "Test";
 
 		TransactionRequest request = request(amount, description);
@@ -110,22 +115,22 @@ public class TransactionServiceTest {
 
 	// -- ASSERT
 
-	private void assertResponse(TransactionResponse response, Long id, String amount, String description) {
+	private void assertResponse(TransactionResponse response, Long id, BigDecimal amount, String description) {
 		assertEquals(id, response.getId());
-		assertEquals(amount, response.getAmount().toString());
+		assertEquals(amount, response.getAmount());
 		assertEquals(description, response.getDescription());
 	}
 
 	// -- FACTORIES
 
-	private TransactionRequest request(String amount, String description) {
-		return new TransactionRequest(new BigDecimal(amount), description);
+	private TransactionRequest request(BigDecimal amount, String description) {
+		return new TransactionRequest(amount, description);
 	}
 
-	private Transaction transaction(Long id, String amount, String description) {
+	private Transaction transaction(Long id, BigDecimal amount, String description) {
 		Transaction transaction = new Transaction();
 		transaction.setId(id);
-		transaction.setAmount(new BigDecimal(amount));
+		transaction.setAmount(amount);
 		transaction.setDescription(description);
 		return transaction;
 	}

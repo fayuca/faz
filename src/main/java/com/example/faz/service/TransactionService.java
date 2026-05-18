@@ -1,7 +1,7 @@
 package com.example.faz.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.faz.dto.TransactionCriteria;
@@ -40,8 +40,10 @@ public class TransactionService {
 		return saved.response();
 	}
 
-	public List<TransactionResponse> getAll(TransactionCriteria criteria) {
-		return Transaction.responses(repository.findAll(TransactionSpecifications.withCriteria(criteria)));
+	public Page<TransactionResponse> getAll(TransactionCriteria criteria, Pageable pageable) {
+		return repository
+				.findAll(TransactionSpecifications.withCriteria(criteria), pageable)
+				.map(Transaction::response);
 	}
 
 	public TransactionResponse update(Long id, TransactionRequest request) {

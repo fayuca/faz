@@ -10,7 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.faz.dto.TransactionCategory;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 import com.example.faz.entity.Transaction;
@@ -31,6 +35,7 @@ import com.example.faz.repository.TransactionRepository;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -49,57 +54,70 @@ public class TransactionIntegrationTest {
 	// -- TESTS
 
 	@Test
-	void shouldFindAll() throws Exception {
-		String amount = "100.00";
-		String description = "Found";
+	void shouldFindPaged() throws Exception {
+		int total = 22;
+		int page = 2;
+		int size = 10;
 
-		Long id = repository.save(transaction(amount, description)).getId();
+		int first = (page * size) + 1;
 
-		repository.save(transaction("200.00", "Found"));
-		repository.save(transaction("300.00", "Found"));
-		repository.save(transaction("400.00", "Found"));
+		seedTransactions(total);
 
 		// *
 
-		List<TransactionResponse> responses = responses(doGet("/transactions")
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andReturn());
-		responses.sort((a, b) -> a.getDescription().compareTo(b.getDescription()));
+		List<TransactionResponse> responses = responses(
+				doGet("/transactions"
+						+ "?page=" + page
+						+ "&size=" + size
+						+ "&sort=" + "amount,asc")
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andReturn());
 
 		// 1
 
-		assertEquals(4, responses.size());
-		assertResponse(responses.getFirst(), id, amount, description);
+		assertEquals(Math.min(total - (page * size), size), responses.size());
+		assertResponse(responses.getFirst(), amount(first), description(first));
 	}
 
 	@Test
-	void shouldFindByDescription() throws Exception {
-		String amount = "100.00";
-		String description = "Found";
+	void shouldFindPagedByCriteria() throws Exception {
+		int total = 27;
+		int page = 0;
+		int size = 10;
+		String sort = "amount,asc";
 
-		Long id = repository.save(transaction(amount, description)).getId();
+		int pivot = 3;
 
-		repository.save(transaction("200.00", "NotMe"));
-		repository.save(transaction("300.00", "NotMe"));
-		repository.save(transaction("400.00", "NotMe"));
+		String found = "Found";
+		int first = (page * size) + pivot;
+
+		seedTransactions(total,
+				i -> transaction(
+						amount(i),
+						i % pivot == 0 ? found : "NotMe"));
 
 		// *
 
-		List<TransactionResponse> responses = responses(doGet("/transactions?description=" + description)
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andReturn());
+		List<TransactionResponse> responses = responses(
+				doGet("/transactions"
+						+ "?description=" + found
+						+ "&page=" + page
+						+ "&size=" + size
+						+ "&sort=" + sort)
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andReturn());
 
 		// 1
 
-		assertEquals(1, responses.size());
-		assertResponse(responses.getFirst(), id, amount, description);
+		assertEquals(9, responses.size());
+		assertResponse(responses.getFirst(), amount(first), found);
 	}
 
 	@Test
 	void shouldCreate() throws Exception {
-		String amount = "100.00";
+		BigDecimal amount = new BigDecimal("100.00");
 		String description = "Test";
 
 		TransactionRequest request = request(amount, description);
@@ -115,7 +133,7 @@ public class TransactionIntegrationTest {
 
 		// 1
 
-		assertResponse(response, id, amount, description);
+		assertResponse(response, amount, description);
 
 		// 2
 
@@ -128,16 +146,16 @@ public class TransactionIntegrationTest {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
-		assertResponse(requested, id, amount, description);
+		assertResponse(requested, amount, description);
 	}
 
 	@Test
 	void shouldUpdate() throws Exception {
-		String oldAmount = "100.00";
+		BigDecimal oldAmount = new BigDecimal("100.00");
 		String oldDescription = "Old";
 		Long id = repository.save(transaction(oldAmount, oldDescription)).getId();
 
-		String newAmount = "200.00";
+		BigDecimal newAmount = new BigDecimal("200.00");
 		String newDescription = "New";
 		TransactionRequest request = request(newAmount, newDescription);
 
@@ -151,7 +169,7 @@ public class TransactionIntegrationTest {
 
 		// 1
 
-		assertResponse(response, id, newAmount, newDescription);
+		assertResponse(response, newAmount, newDescription);
 
 		// 2
 
@@ -164,7 +182,7 @@ public class TransactionIntegrationTest {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
-		assertResponse(requested, id, newAmount, newDescription);
+		assertResponse(requested, newAmount, newDescription);
 	}
 
 	@Test
@@ -174,7 +192,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		ApiError apiError = apiError(
-				doPut("/transactions/" + id, request("200.00", "New"))
+				doPut("/transactions/" + id, request(new BigDecimal("200.00"), "New"))
 						.andDo(print())
 						.andExpect(status().isNotFound())
 						.andReturn());
@@ -186,11 +204,11 @@ public class TransactionIntegrationTest {
 
 	@Test
 	void shouldNotUpdateInvalid() throws Exception {
-		String oldAmount = "100.00";
+		BigDecimal oldAmount = new BigDecimal("100.00");
 		String oldDescription = "Old";
 		Long id = repository.save(transaction(oldAmount, oldDescription)).getId();
 
-		String newAmount = "-10.00";
+		BigDecimal newAmount = new BigDecimal("-10.00");
 		String newDescription = null;
 		TransactionRequest request = request(newAmount, newDescription);
 
@@ -217,7 +235,7 @@ public class TransactionIntegrationTest {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
-		assertResponse(requested, id, oldAmount, oldDescription);
+		assertResponse(requested, oldAmount, oldDescription);
 	}
 
 	// -- ASSERT
@@ -229,29 +247,60 @@ public class TransactionIntegrationTest {
 		}
 	}
 
-	private void assertResponse(TransactionResponse response, Long id, String amount, String description) {
-		assertEquals(id, response.getId());
-		assertEquals(amount, response.getAmount().toString());
+	private void assertResponse(TransactionResponse response, BigDecimal amount, String description) {
+		assertEquals(0, amount.compareTo(response.getAmount()));
 		assertEquals(description, response.getDescription());
 	}
 
-	private void assertTransaction(Transaction transaction, Long id, String amount, String description) {
+	private void assertTransaction(Transaction transaction, Long id, BigDecimal amount, String description) {
 		assertEquals(id, transaction.getId());
-		assertEquals(amount, transaction.getAmount().toString());
+		assertEquals(0, amount.compareTo(transaction.getAmount()));
 		assertEquals(description, transaction.getDescription());
 	}
 
 	// -- FACTORIES
 
-	private TransactionRequest request(String amount, String description) {
-		return new TransactionRequest(new BigDecimal(amount), description);
+	private BigDecimal amount(int i) {
+		return new BigDecimal(i * 100);
 	}
 
-	private Transaction transaction(String amount, String description) {
+	private String description(int i) {
+		return "Transaction " + i;
+	}
+
+	private TransactionRequest request(BigDecimal amount, String description) {
+		return new TransactionRequest(amount, description);
+	}
+
+	private Transaction transaction(BigDecimal amount, String description) {
+		return transaction(amount, description, randomCategory());
+	}
+
+	private Transaction transaction(BigDecimal amount, String description, TransactionCategory category) {
 		Transaction transaction = new Transaction();
-		transaction.setAmount(new BigDecimal(amount));
+		transaction.setAmount(amount);
 		transaction.setDescription(description);
+		transaction.setCategory(category);
 		return transaction;
+	}
+
+	private List<Transaction> seedTransactions(int count) {
+		return seedTransactions(count, i -> transaction(amount(i), description(i), randomCategory()));
+	}
+
+	private TransactionCategory randomCategory() {
+		TransactionCategory[] categories = TransactionCategory.values();
+		return categories[ThreadLocalRandom.current().nextInt(categories.length)];
+	}
+
+	private List<Transaction> seedTransactions(int count, Function<Integer, Transaction> factory) {
+		List<Transaction> transactions = new ArrayList<>();
+
+		for (int i = 1; i <= count; i++) {
+			transactions.add(factory.apply(i));
+		}
+
+		return repository.saveAll(transactions);
 	}
 
 	// -- MAPPERS
@@ -265,9 +314,12 @@ public class TransactionIntegrationTest {
 	}
 
 	private List<TransactionResponse> responses(MvcResult result)
-			throws JacksonException, UnsupportedEncodingException {
+			throws Exception {
+		JsonNode root = objectMapper.readTree(
+				result.getResponse().getContentAsString());
+
 		return objectMapper.readValue(
-				result.getResponse().getContentAsString(),
+				root.get("content").toString(),
 				new TypeReference<List<TransactionResponse>>() {
 				});
 	}
