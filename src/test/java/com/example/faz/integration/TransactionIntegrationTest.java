@@ -222,7 +222,7 @@ public class TransactionIntegrationTest {
 
 		// 1
 
-		assertApiError(apiError, ApiErrors.VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiErrors.ERR_VALIDATION_FAILED, "amount", "description");
 
 		// 2
 

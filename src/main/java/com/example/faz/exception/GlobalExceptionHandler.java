@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 		ApiError apiError = new ApiError(
 				LocalDateTime.now(),
 				HttpStatus.BAD_REQUEST.value(),
-				ApiErrors.VALIDATION_FAILED,
+				ApiErrors.ERR_VALIDATION_FAILED,
 				fieldErrors);
 
 		return ResponseEntity.badRequest().body(apiError);

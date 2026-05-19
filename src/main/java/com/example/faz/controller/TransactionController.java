@@ -17,8 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
+import com.example.faz.exception.ApiError;
+import com.example.faz.exception.ApiErrors;
 import com.example.faz.service.TransactionService;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 @RestController
@@ -32,11 +38,17 @@ public class TransactionController {
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ApiResponses({
+			@ApiResponse(responseCode = ApiErrors.HTTP_STATUS_NOT_FOUND, description = ApiErrors.ERR_NOT_FOUND, content = @Content(schema = @Schema(implementation = ApiError.class)))
+	})
 	public void delete(@PathVariable Long id) {
 		service.delete(id);
 	}
 
 	@GetMapping("/{id}")
+	@ApiResponses({
+			@ApiResponse(responseCode = ApiErrors.HTTP_STATUS_NOT_FOUND, description = ApiErrors.ERR_NOT_FOUND, content = @Content(schema = @Schema(implementation = ApiError.class)))
+	})
 	public TransactionResponse get(@PathVariable Long id) {
 		return service.get(id);
 	}
@@ -47,12 +59,20 @@ public class TransactionController {
 	}
 
 	@PostMapping
-	public TransactionResponse post(@RequestBody @Valid TransactionRequest dto) {
+	@ApiResponses({
+			@ApiResponse(responseCode = ApiErrors.HTTP_STATUS_BAD_REQUEST, description = ApiErrors.ERR_VALIDATION_FAILED, content = @Content(schema = @Schema(implementation = ApiError.class)))
+
+	})
+	public TransactionResponse create(@RequestBody @Valid TransactionRequest dto) {
 		return service.create(dto);
 	}
 
 	@PutMapping("/{id}")
-	public TransactionResponse put(@PathVariable Long id, @RequestBody @Valid TransactionRequest dto) {
+	@ApiResponses({
+			@ApiResponse(responseCode = ApiErrors.HTTP_STATUS_BAD_REQUEST, description = ApiErrors.ERR_VALIDATION_FAILED, content = @Content(schema = @Schema(implementation = ApiError.class))),
+			@ApiResponse(responseCode = ApiErrors.HTTP_STATUS_NOT_FOUND, description = ApiErrors.ERR_NOT_FOUND, content = @Content(schema = @Schema(implementation = ApiError.class)))
+	})
+	public TransactionResponse update(@PathVariable Long id, @RequestBody @Valid TransactionRequest dto) {
 		return service.update(id, dto);
 	}
 }

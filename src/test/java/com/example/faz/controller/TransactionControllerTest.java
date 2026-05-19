@@ -88,7 +88,7 @@ public class TransactionControllerTest {
 
 		ApiError apiError = apiError(result);
 
-		assertApiError(apiError, ApiErrors.VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiErrors.ERR_VALIDATION_FAILED, "amount", "description");
 	}
 
 	@Test
@@ -251,7 +251,7 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		ApiError apiError = apiError(result);
-		assertApiError(apiError, ApiErrors.VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiErrors.ERR_VALIDATION_FAILED, "amount", "description");
 	}
 
 	// -- ASSERT
