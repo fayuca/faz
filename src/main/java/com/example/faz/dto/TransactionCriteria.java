@@ -4,12 +4,28 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class TransactionCriteria {
+	private LocalDate from;
+	private LocalDate to;
 	private String description;
 	private BigDecimal minAmount;
 	private BigDecimal maxAmount;
-	private LocalDate from;
-	private LocalDate to;
 	private TransactionCategory category;
+
+	public LocalDate getFrom() {
+		return from;
+	}
+
+	public void setFrom(LocalDate from) {
+		this.from = from;
+	}
+
+	public LocalDate getTo() {
+		return to;
+	}
+
+	public void setTo(LocalDate to) {
+		this.to = to;
+	}
 
 	public String getDescription() {
 		return description;
@@ -33,22 +49,6 @@ public class TransactionCriteria {
 
 	public void setMaxAmount(BigDecimal maxAmount) {
 		this.maxAmount = maxAmount;
-	}
-
-	public LocalDate getFrom() {
-		return from;
-	}
-
-	public void setFrom(LocalDate from) {
-		this.from = from;
-	}
-
-	public LocalDate getTo() {
-		return to;
-	}
-
-	public void setTo(LocalDate to) {
-		this.to = to;
 	}
 
 	public TransactionCategory getCategory() {

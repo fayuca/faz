@@ -10,6 +10,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.example.faz.constants.ApiInfo;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -22,7 +24,7 @@ public class GlobalExceptionHandler {
 		ApiError apiError = new ApiError(
 				LocalDateTime.now(),
 				HttpStatus.BAD_REQUEST.value(),
-				ApiErrors.ERR_VALIDATION_FAILED,
+				ApiInfo.ERR_VALIDATION_FAILED,
 				fieldErrors);
 
 		return ResponseEntity.badRequest().body(apiError);

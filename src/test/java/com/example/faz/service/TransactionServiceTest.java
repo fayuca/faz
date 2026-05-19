@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,11 +23,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.example.faz.constants.ApiInfo;
+import com.example.faz.dto.TransactionCategory;
 import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 import com.example.faz.entity.Transaction;
-import com.example.faz.exception.ApiErrors;
 import com.example.faz.exception.ResourceNotFoundException;
 import com.example.faz.repository.TransactionRepository;
 
@@ -108,7 +110,7 @@ public class TransactionServiceTest {
 		when(repository.findById(id)).thenReturn(Optional.empty());
 
 		assertEquals(
-				ApiErrors.notFound(id),
+				ApiInfo.notFound(id),
 				assertThrows(ResourceNotFoundException.class, () -> service.update(id, request)).getMessage());
 		;
 	}
@@ -124,7 +126,7 @@ public class TransactionServiceTest {
 	// -- FACTORIES
 
 	private TransactionRequest request(BigDecimal amount, String description) {
-		return new TransactionRequest(amount, description);
+		return new TransactionRequest(amount, description, randomCategory());
 	}
 
 	private Transaction transaction(Long id, BigDecimal amount, String description) {
@@ -133,5 +135,10 @@ public class TransactionServiceTest {
 		transaction.setAmount(amount);
 		transaction.setDescription(description);
 		return transaction;
+	}
+
+	private TransactionCategory randomCategory() {
+		TransactionCategory[] categories = TransactionCategory.values();
+		return categories[ThreadLocalRandom.current().nextInt(categories.length)];
 	}
 }

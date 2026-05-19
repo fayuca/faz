@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.example.faz.constants.ApiInfo;
+import com.example.faz.dto.TransactionCategory;
 import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 import com.example.faz.exception.ApiError;
-import com.example.faz.exception.ApiErrors;
 import com.example.faz.exception.ResourceNotFoundException;
 import com.example.faz.service.TransactionService;
 
@@ -88,7 +90,7 @@ public class TransactionControllerTest {
 
 		ApiError apiError = apiError(result);
 
-		assertApiError(apiError, ApiErrors.ERR_VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "amount", "description");
 	}
 
 	@Test
@@ -157,7 +159,7 @@ public class TransactionControllerTest {
 	@Test
 	void shouldNotFind() throws Exception {
 		Long id = -1L;
-		String message = ApiErrors.notFound(id);
+		String message = ApiInfo.notFound(id);
 
 		when(service
 				.get(id))
@@ -188,7 +190,7 @@ public class TransactionControllerTest {
 	@Test
 	void shouldNotDeleteNotFound() throws Exception {
 		Long id = -1L;
-		String message = ApiErrors.notFound(id);
+		String message = ApiInfo.notFound(id);
 
 		doThrow(new ResourceNotFoundException(message))
 				.when(service)
@@ -228,7 +230,7 @@ public class TransactionControllerTest {
 		BigDecimal amount = new BigDecimal("200.00");
 		String description = "Updated";
 
-		String message = ApiErrors.notFound(id);
+		String message = ApiInfo.notFound(id);
 
 		when(service
 				.update(eq(id), any(TransactionRequest.class)))
@@ -251,7 +253,7 @@ public class TransactionControllerTest {
 				.andReturn();
 
 		ApiError apiError = apiError(result);
-		assertApiError(apiError, ApiErrors.ERR_VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "amount", "description");
 	}
 
 	// -- ASSERT
@@ -272,11 +274,16 @@ public class TransactionControllerTest {
 	// -- FACTORIES
 
 	private TransactionRequest request(BigDecimal amount, String description) {
-		return new TransactionRequest(amount, description);
+		return new TransactionRequest(amount, description, randomCategory());
 	}
 
 	private TransactionResponse response(Long id, BigDecimal amount, String description) {
-		return new TransactionResponse(id, amount, description);
+		return new TransactionResponse(id, amount, description, randomCategory());
+	}
+
+	private TransactionCategory randomCategory() {
+		TransactionCategory[] categories = TransactionCategory.values();
+		return categories[ThreadLocalRandom.current().nextInt(categories.length)];
 	}
 
 	// -- MAPPERS

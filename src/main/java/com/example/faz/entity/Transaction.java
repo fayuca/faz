@@ -31,35 +31,42 @@ public class Transaction {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column
+	private LocalDateTime date;
+
+	// -
+
 	@Column(nullable = false)
 	private BigDecimal amount;
 
 	@Column
 	private String description;
 
-	@Column
-	private LocalDateTime date;
-
 	@Enumerated(EnumType.STRING)
 	private TransactionCategory category;
+
+	// -
 
 	public TransactionRequest request() {
 		return new TransactionRequest(
 				getAmount(),
-				getDescription());
+				getDescription(),
+				getCategory());
 	}
 
 	public TransactionResponse response() {
 		return new TransactionResponse(
 				getId(),
 				getAmount(),
-				getDescription());
+				getDescription(),
+				getCategory());
 	}
 
 	public static Transaction from(TransactionRequest request) {
 		Transaction transaction = new Transaction();
 		transaction.setAmount(request.getAmount());
 		transaction.setDescription(request.getDescription());
+		transaction.setCategory(request.getCategory());
 		return transaction;
 	}
 

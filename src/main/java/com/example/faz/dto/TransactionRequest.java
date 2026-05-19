@@ -2,9 +2,17 @@ package com.example.faz.dto;
 
 import java.math.BigDecimal;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+@Schema(example = """
+		{
+		  "amount": 100.00,
+		  "description": "Lunch",
+		  "category": "FOOD"
+		}
+		""")
 public class TransactionRequest {
 	@NotNull
 	@Positive
@@ -13,9 +21,13 @@ public class TransactionRequest {
 	@NotNull
 	private String description;
 
-	public TransactionRequest(BigDecimal amount, String description) {
+	@NotNull
+	private TransactionCategory category;
+
+	public TransactionRequest(BigDecimal amount, String description, TransactionCategory category) {
 		this.amount = amount;
 		this.description = description;
+		this.category = category;
 	}
 
 	public BigDecimal getAmount() {
@@ -32,5 +44,13 @@ public class TransactionRequest {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public TransactionCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(TransactionCategory category) {
+		this.category = category;
 	}
 }

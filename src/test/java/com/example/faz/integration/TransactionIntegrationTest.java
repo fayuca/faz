@@ -25,12 +25,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.faz.constants.ApiInfo;
 import com.example.faz.dto.TransactionCategory;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
 import com.example.faz.entity.Transaction;
 import com.example.faz.exception.ApiError;
-import com.example.faz.exception.ApiErrors;
 import com.example.faz.repository.TransactionRepository;
 
 import tools.jackson.core.JacksonException;
@@ -199,7 +199,7 @@ public class TransactionIntegrationTest {
 
 		// 1
 
-		assertApiError(apiError, ApiErrors.notFound(id));
+		assertApiError(apiError, ApiInfo.notFound(id));
 	}
 
 	@Test
@@ -222,7 +222,7 @@ public class TransactionIntegrationTest {
 
 		// 1
 
-		assertApiError(apiError, ApiErrors.ERR_VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "amount", "description");
 
 		// 2
 
@@ -269,7 +269,7 @@ public class TransactionIntegrationTest {
 	}
 
 	private TransactionRequest request(BigDecimal amount, String description) {
-		return new TransactionRequest(amount, description);
+		return new TransactionRequest(amount, description, randomCategory());
 	}
 
 	private Transaction transaction(BigDecimal amount, String description) {
