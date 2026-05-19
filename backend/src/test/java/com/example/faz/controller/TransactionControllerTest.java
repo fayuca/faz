@@ -56,6 +56,8 @@ public class TransactionControllerTest {
 	@MockitoBean
 	private TransactionService service;
 
+	private static final String TRANSACTIONS = "/api/transactions";
+
 	// -- TESTS
 
 	@Test
@@ -68,7 +70,7 @@ public class TransactionControllerTest {
 				.create(any(TransactionRequest.class)))
 				.thenReturn(response(id, amount, description));
 
-		MvcResult result = doPost("/transactions", request(amount, description))
+		MvcResult result = doPost(TRANSACTIONS, request(amount, description))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn();
@@ -83,7 +85,7 @@ public class TransactionControllerTest {
 		BigDecimal amount = new BigDecimal("-10.00");
 		String description = null;
 
-		MvcResult result = doPost("/transactions", request(amount, description))
+		MvcResult result = doPost(TRANSACTIONS, request(amount, description))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andReturn();
@@ -103,7 +105,7 @@ public class TransactionControllerTest {
 				.get(1L))
 				.thenReturn(response(id, amount, description));
 
-		MvcResult result = doGet("/transactions/" + id)
+		MvcResult result = doGet(TRANSACTIONS + "/" + id)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn();
@@ -123,7 +125,7 @@ public class TransactionControllerTest {
 				.getAll(any(TransactionCriteria.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<TransactionResponse>(List.of(response(id, amount, description))));
 
-		MvcResult result = doGet("/transactions?description=" + description)
+		MvcResult result = doGet(TRANSACTIONS + "?description=" + description)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn();
@@ -146,7 +148,9 @@ public class TransactionControllerTest {
 				.getAll(any(TransactionCriteria.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<TransactionResponse>(List.of(response(id, amount, description))));
 
-		MvcResult result = doGet("/transactions?page=" + page + "&size=" + size)
+		MvcResult result = doGet(TRANSACTIONS
+				+ "?page=" + page
+				+ "&size=" + size)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn();
@@ -165,7 +169,7 @@ public class TransactionControllerTest {
 				.get(id))
 				.thenThrow(new ResourceNotFoundException(message));
 
-		MvcResult result = doGet("/transactions/" + id)
+		MvcResult result = doGet(TRANSACTIONS + "/" + id)
 				.andDo(print())
 				.andExpect(status().isNotFound())
 				.andReturn();
@@ -180,7 +184,7 @@ public class TransactionControllerTest {
 
 		doNothing().when(service).delete(id);
 
-		doDelete("/transactions/" + id)
+		doDelete(TRANSACTIONS + "/" + id)
 				.andDo(print())
 				.andExpect(status().isNoContent());
 
@@ -196,7 +200,7 @@ public class TransactionControllerTest {
 				.when(service)
 				.delete(id);
 
-		MvcResult result = doDelete("/transactions/" + id)
+		MvcResult result = doDelete(TRANSACTIONS + "/" + id)
 				.andDo(print())
 				.andExpect(status().isNotFound())
 				.andReturn();
@@ -215,7 +219,7 @@ public class TransactionControllerTest {
 				.update(eq(id), any(TransactionRequest.class)))
 				.thenReturn(response(id, amount, description));
 
-		MvcResult result = doPut("/transactions/" + id, request(amount, description))
+		MvcResult result = doPut(TRANSACTIONS + "/" + id, request(amount, description))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn();
@@ -236,7 +240,7 @@ public class TransactionControllerTest {
 				.update(eq(id), any(TransactionRequest.class)))
 				.thenThrow(new ResourceNotFoundException(message));
 
-		MvcResult result = doPut("/transactions/" + id, request(amount, description))
+		MvcResult result = doPut(TRANSACTIONS + "/" + id, request(amount, description))
 				.andDo(print())
 				.andExpect(status().isNotFound())
 				.andReturn();
@@ -247,7 +251,7 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldNotUpdateInvalid() throws Exception {
-		MvcResult result = doPut("/transactions/-1", request(new BigDecimal("-10.00"), null))
+		MvcResult result = doPut(TRANSACTIONS + "/" + "-1", request(new BigDecimal("-10.00"), null))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andReturn();

@@ -31,7 +31,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Transactions")
-@RequestMapping("/transactions")
+@RequestMapping("/api/transactions")
 public class TransactionController {
 	private final TransactionService service;
 

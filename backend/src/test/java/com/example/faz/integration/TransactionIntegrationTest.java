@@ -51,6 +51,8 @@ public class TransactionIntegrationTest {
 	@Autowired
 	private TransactionRepository repository;
 
+	private static final String TRANSACTIONS = "/api/transactions";
+
 	// -- TESTS
 
 	@Test
@@ -66,7 +68,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		List<TransactionResponse> responses = responses(
-				doGet("/transactions"
+				doGet(TRANSACTIONS
 						+ "?page=" + page
 						+ "&size=" + size
 						+ "&sort=" + "amount,asc")
@@ -100,7 +102,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		List<TransactionResponse> responses = responses(
-				doGet("/transactions"
+				doGet(TRANSACTIONS
 						+ "?description=" + found
 						+ "&page=" + page
 						+ "&size=" + size
@@ -125,7 +127,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		TransactionResponse response = response(
-				doPost("/transactions", request)
+				doPost(TRANSACTIONS, request)
 						.andDo(print())
 						.andExpect(status().isOk())
 						.andReturn());
