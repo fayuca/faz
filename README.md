@@ -1,6 +1,6 @@
 # faz
 
-Simple finance tracker backend built with Spring Boot.
+Simple finance tracker built with Spring Boot + React.
 
 ## Features
 
