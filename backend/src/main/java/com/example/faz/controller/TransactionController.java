@@ -39,6 +39,8 @@ public class TransactionController {
 		this.service = service;
 	}
 
+	// --
+
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Operation(summary = "Delete transaction", description = "Deletes a transaction by its id. Returns no content if successful.")
@@ -48,6 +50,8 @@ public class TransactionController {
 	public void delete(@PathVariable Long id) {
 		service.delete(id);
 	}
+
+	// --
 
 	@GetMapping("/{id}")
 	@Operation(summary = "Get transaction by id", description = "Retrieves a single transaction by its unique identifier")
@@ -68,6 +72,8 @@ public class TransactionController {
 		return service.getAll(criteria, pageable);
 	}
 
+	// --
+
 	@PostMapping
 	@Operation(summary = "Create transaction", description = "Creates a new transaction with amount, description, and optional category")
 	@ApiResponses({
@@ -77,6 +83,8 @@ public class TransactionController {
 	public TransactionResponse create(@RequestBody @Valid TransactionRequest dto) {
 		return service.create(dto);
 	}
+
+	// --
 
 	@PutMapping("/{id}")
 	@Operation(summary = "Update transaction", description = "Updates an existing transaction identified by id")
