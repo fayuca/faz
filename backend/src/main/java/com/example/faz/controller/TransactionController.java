@@ -1,6 +1,5 @@
 package com.example.faz.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.faz.constants.ApiInfo;
+import com.example.faz.dto.PageResponse;
 import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
 import com.example.faz.dto.TransactionResponse;
@@ -68,8 +68,8 @@ public class TransactionController {
 			@ApiResponse(responseCode = ApiInfo.HTTP_STATUS_OK, description = "Paginated list of transactions")
 
 	})
-	public Page<TransactionResponse> getAll(@ModelAttribute TransactionCriteria criteria, Pageable pageable) {
-		return service.getAll(criteria, pageable);
+	public PageResponse<TransactionResponse> getAll(@ModelAttribute TransactionCriteria criteria, Pageable pageable) {
+		return PageResponse.from(service.getAll(criteria, pageable));
 	}
 
 	// --

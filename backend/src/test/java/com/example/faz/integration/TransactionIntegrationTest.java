@@ -144,7 +144,7 @@ public class TransactionIntegrationTest {
 
 		// 3
 
-		TransactionResponse requested = response(doGet("/transactions/" + id)
+		TransactionResponse requested = response(doGet("/api/transactions/" + id)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
@@ -164,7 +164,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		TransactionResponse response = response(
-				doPut("/transactions/" + id, request)
+				doPut("/api/transactions/" + id, request)
 						.andDo(print())
 						.andExpect(status().isOk())
 						.andReturn());
@@ -180,7 +180,7 @@ public class TransactionIntegrationTest {
 
 		// 3
 
-		TransactionResponse requested = response(doGet("/transactions/" + id)
+		TransactionResponse requested = response(doGet("/api/transactions/" + id)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
@@ -194,7 +194,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		ApiError apiError = apiError(
-				doPut("/transactions/" + id, request(new BigDecimal("200.00"), "New"))
+				doPut("/api/transactions/" + id, request(new BigDecimal("200.00"), "New"))
 						.andDo(print())
 						.andExpect(status().isNotFound())
 						.andReturn());
@@ -217,7 +217,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		ApiError apiError = apiError(
-				doPut("/transactions/" + id, request)
+				doPut("/api/transactions/" + id, request)
 						.andDo(print())
 						.andExpect(status().isBadRequest())
 						.andReturn());
@@ -233,7 +233,7 @@ public class TransactionIntegrationTest {
 
 		// 3
 
-		TransactionResponse requested = response(doGet("/transactions/" + id)
+		TransactionResponse requested = response(doGet("/api/transactions/" + id)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
