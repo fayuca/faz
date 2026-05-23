@@ -17,7 +17,7 @@ function TransactionTable({ transactions }: Props) {
 			</thead>
 
 			<tbody>
-				{transactions.map((transaction) => (
+				{transactions.map(transaction => (
 					<tr key={transaction.id}>
 						<td>{transaction.id}</td>
 						<td>{transaction.amount}</td>

@@ -1,4 +1,4 @@
-import type { Page, TransactionResponse } from "../types/Transaction";
+import type { Page, TransactionRequest, TransactionResponse } from "../types/Transaction";
 import { http } from "./http";
 
 export type TransactionCriteria = {
@@ -10,6 +10,17 @@ export type TransactionCriteria = {
 	size?: number;
 	sort?: string;
 };
+
+export async function createTransaction(
+	request: TransactionRequest
+): Promise<TransactionResponse> {
+	const response = await http.post<TransactionResponse>(
+		"/transactions",
+		request
+	);
+
+	return response.data;
+}
 
 export async function getTransactions(
 	params: TransactionCriteria
