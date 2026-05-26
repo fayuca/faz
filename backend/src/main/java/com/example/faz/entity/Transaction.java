@@ -31,7 +31,7 @@ public class Transaction {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column
+	@Column(nullable = false)
 	private LocalDateTime date;
 
 	// -
@@ -49,6 +49,7 @@ public class Transaction {
 
 	public TransactionRequest request() {
 		return new TransactionRequest(
+				getDate(),
 				getAmount(),
 				getDescription(),
 				getCategory());
@@ -57,6 +58,7 @@ public class Transaction {
 	public TransactionResponse response() {
 		return new TransactionResponse(
 				getId(),
+				getDate(),
 				getAmount(),
 				getDescription(),
 				getCategory());
@@ -64,6 +66,7 @@ public class Transaction {
 
 	public static Transaction from(TransactionRequest request) {
 		Transaction transaction = new Transaction();
+		transaction.setDate(request.getDate());
 		transaction.setAmount(request.getAmount());
 		transaction.setDescription(request.getDescription());
 		transaction.setCategory(request.getCategory());

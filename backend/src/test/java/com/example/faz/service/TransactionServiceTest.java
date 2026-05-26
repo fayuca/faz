@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -34,13 +35,13 @@ import com.example.faz.repository.TransactionRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
+	private static final LocalDateTime TEST_DATE = LocalDateTime.of(2026, 5, 26, 12, 0);
+
 	@Mock
 	private TransactionRepository repository;
 
 	@InjectMocks
 	private TransactionService service;
-
-	// -- TESTS
 
 	@Test
 	void shouldSave() {
@@ -56,7 +57,7 @@ public class TransactionServiceTest {
 
 		TransactionResponse response = service.create(request);
 
-		assertResponse(response, id, amount, description);
+		assertResponse(response, id, amount, description, TEST_DATE);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -75,7 +76,7 @@ public class TransactionServiceTest {
 				PageRequest.of(0, 10, Sort.by("amount").descending()));
 
 		assertEquals(1, page.getSize());
-		assertResponse(page.getContent().getFirst(), id, amount, description);
+		assertResponse(page.getContent().getFirst(), id, amount, description, TEST_DATE);
 	}
 
 	@Test
@@ -87,16 +88,20 @@ public class TransactionServiceTest {
 
 		BigDecimal newAmount = new BigDecimal("200.00");
 		String newDescription = "New";
+		TransactionCategory newCategory = TransactionCategory.TRANSPORT;
+		LocalDateTime newDate = LocalDateTime.of(2026, 6, 1, 9, 30);
 
 		Transaction existing = transaction(id, oldAmount, oldDescription);
-		TransactionRequest request = request(newAmount, newDescription);
+		existing.setCategory(TransactionCategory.FOOD);
+		TransactionRequest request = new TransactionRequest(newDate, newAmount, newDescription, newCategory);
 
 		when(repository.findById(id)).thenReturn(Optional.of(existing));
 		when(repository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		TransactionResponse response = service.update(id, request);
 
-		assertResponse(response, id, newAmount, newDescription);
+		assertResponse(response, id, newAmount, newDescription, newDate);
+		assertEquals(newCategory, response.getCategory());
 	}
 
 	@Test
@@ -112,26 +117,24 @@ public class TransactionServiceTest {
 		assertEquals(
 				ApiInfo.notFound(id),
 				assertThrows(ResourceNotFoundException.class, () -> service.update(id, request)).getMessage());
-		;
 	}
 
-	// -- ASSERT
-
-	private void assertResponse(TransactionResponse response, Long id, BigDecimal amount, String description) {
+	private void assertResponse(TransactionResponse response, Long id, BigDecimal amount, String description,
+			LocalDateTime date) {
 		assertEquals(id, response.getId());
 		assertEquals(amount, response.getAmount());
 		assertEquals(description, response.getDescription());
+		assertEquals(date, response.getDate());
 	}
 
-	// -- FACTORIES
-
 	private TransactionRequest request(BigDecimal amount, String description) {
-		return new TransactionRequest(amount, description, randomCategory());
+		return new TransactionRequest(TEST_DATE, amount, description, randomCategory());
 	}
 
 	private Transaction transaction(Long id, BigDecimal amount, String description) {
 		Transaction transaction = new Transaction();
 		transaction.setId(id);
+		transaction.setDate(TEST_DATE);
 		transaction.setAmount(amount);
 		transaction.setDescription(description);
 		return transaction;

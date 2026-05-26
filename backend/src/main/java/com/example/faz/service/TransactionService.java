@@ -53,6 +53,8 @@ public class TransactionService {
 
 		transaction.setAmount(request.getAmount());
 		transaction.setDescription(request.getDescription());
+		transaction.setCategory(request.getCategory());
+		transaction.setDate(request.getDate());
 
 		Transaction saved = repository.save(transaction);
 		return saved.response();

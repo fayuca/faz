@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -42,6 +43,8 @@ import tools.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc
 @Transactional
 public class TransactionIntegrationTest {
+	private static final LocalDateTime TEST_DATE = LocalDateTime.of(2026, 5, 26, 12, 0);
+
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -79,7 +82,7 @@ public class TransactionIntegrationTest {
 		// 1
 
 		assertEquals(Math.min(total - (page * size), size), responses.size());
-		assertResponse(responses.getFirst(), amount(first), description(first));
+		assertResponse(responses.getFirst(), amount(first), description(first), TEST_DATE);
 	}
 
 	@Test
@@ -114,7 +117,7 @@ public class TransactionIntegrationTest {
 		// 1
 
 		assertEquals(9, responses.size());
-		assertResponse(responses.getFirst(), amount(first), found);
+		assertResponse(responses.getFirst(), amount(first), found, TEST_DATE);
 	}
 
 	@Test
@@ -135,12 +138,12 @@ public class TransactionIntegrationTest {
 
 		// 1
 
-		assertResponse(response, amount, description);
+		assertResponse(response, amount, description, TEST_DATE);
 
 		// 2
 
 		Transaction queried = repository.findById(id).orElseThrow();
-		assertTransaction(queried, id, amount, description);
+		assertTransaction(queried, id, amount, description, TEST_DATE);
 
 		// 3
 
@@ -148,7 +151,7 @@ public class TransactionIntegrationTest {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
-		assertResponse(requested, amount, description);
+		assertResponse(requested, amount, description, TEST_DATE);
 	}
 
 	@Test
@@ -159,7 +162,8 @@ public class TransactionIntegrationTest {
 
 		BigDecimal newAmount = new BigDecimal("200.00");
 		String newDescription = "New";
-		TransactionRequest request = request(newAmount, newDescription);
+		LocalDateTime newDate = LocalDateTime.of(2026, 6, 1, 9, 30);
+		TransactionRequest request = new TransactionRequest(newDate, newAmount, newDescription, randomCategory());
 
 		// *
 
@@ -171,12 +175,12 @@ public class TransactionIntegrationTest {
 
 		// 1
 
-		assertResponse(response, newAmount, newDescription);
+		assertResponse(response, newAmount, newDescription, newDate);
 
 		// 2
 
 		Transaction queried = repository.findById(id).orElseThrow();
-		assertTransaction(queried, id, newAmount, newDescription);
+		assertTransaction(queried, id, newAmount, newDescription, newDate);
 
 		// 3
 
@@ -184,7 +188,7 @@ public class TransactionIntegrationTest {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
-		assertResponse(requested, newAmount, newDescription);
+		assertResponse(requested, newAmount, newDescription, newDate);
 	}
 
 	@Test
@@ -212,7 +216,7 @@ public class TransactionIntegrationTest {
 
 		BigDecimal newAmount = new BigDecimal("-10.00");
 		String newDescription = null;
-		TransactionRequest request = request(newAmount, newDescription);
+		TransactionRequest request = new TransactionRequest(null, newAmount, newDescription, randomCategory());
 
 		// *
 
@@ -224,12 +228,12 @@ public class TransactionIntegrationTest {
 
 		// 1
 
-		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "date", "amount", "description");
 
 		// 2
 
 		Transaction queried = repository.findById(id).orElseThrow();
-		assertTransaction(queried, id, oldAmount, oldDescription);
+		assertTransaction(queried, id, oldAmount, oldDescription, TEST_DATE);
 
 		// 3
 
@@ -237,7 +241,7 @@ public class TransactionIntegrationTest {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
-		assertResponse(requested, oldAmount, oldDescription);
+		assertResponse(requested, oldAmount, oldDescription, TEST_DATE);
 	}
 
 	// -- ASSERT
@@ -249,15 +253,19 @@ public class TransactionIntegrationTest {
 		}
 	}
 
-	private void assertResponse(TransactionResponse response, BigDecimal amount, String description) {
+	private void assertResponse(TransactionResponse response, BigDecimal amount, String description,
+			LocalDateTime date) {
 		assertEquals(0, amount.compareTo(response.getAmount()));
 		assertEquals(description, response.getDescription());
+		assertEquals(date, response.getDate());
 	}
 
-	private void assertTransaction(Transaction transaction, Long id, BigDecimal amount, String description) {
+	private void assertTransaction(Transaction transaction, Long id, BigDecimal amount, String description,
+			LocalDateTime date) {
 		assertEquals(id, transaction.getId());
 		assertEquals(0, amount.compareTo(transaction.getAmount()));
 		assertEquals(description, transaction.getDescription());
+		assertEquals(date, transaction.getDate());
 	}
 
 	// -- FACTORIES
@@ -271,7 +279,7 @@ public class TransactionIntegrationTest {
 	}
 
 	private TransactionRequest request(BigDecimal amount, String description) {
-		return new TransactionRequest(amount, description, randomCategory());
+		return new TransactionRequest(TEST_DATE, amount, description, randomCategory());
 	}
 
 	private Transaction transaction(BigDecimal amount, String description) {
@@ -280,6 +288,7 @@ public class TransactionIntegrationTest {
 
 	private Transaction transaction(BigDecimal amount, String description, TransactionCategory category) {
 		Transaction transaction = new Transaction();
+		transaction.setDate(TEST_DATE);
 		transaction.setAmount(amount);
 		transaction.setDescription(description);
 		transaction.setCategory(category);

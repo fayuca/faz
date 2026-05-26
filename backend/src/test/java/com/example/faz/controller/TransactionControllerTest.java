@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -47,6 +48,8 @@ import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(TransactionController.class)
 public class TransactionControllerTest {
+	private static final LocalDateTime TEST_DATE = LocalDateTime.of(2026, 5, 26, 12, 0);
+
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -85,14 +88,14 @@ public class TransactionControllerTest {
 		BigDecimal amount = new BigDecimal("-10.00");
 		String description = null;
 
-		MvcResult result = doPost(TRANSACTIONS, request(amount, description))
+		MvcResult result = doPost(TRANSACTIONS, new TransactionRequest(null, amount, description, randomCategory()))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andReturn();
 
 		ApiError apiError = apiError(result);
 
-		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "date", "amount", "description");
 	}
 
 	@Test
@@ -251,13 +254,13 @@ public class TransactionControllerTest {
 
 	@Test
 	void shouldNotUpdateInvalid() throws Exception {
-		MvcResult result = doPut(TRANSACTIONS + "/" + "-1", request(new BigDecimal("-10.00"), null))
+		MvcResult result = doPut(TRANSACTIONS + "/" + "-1", new TransactionRequest(null, new BigDecimal("-10.00"), null, randomCategory()))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andReturn();
 
 		ApiError apiError = apiError(result);
-		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "amount", "description");
+		assertApiError(apiError, ApiInfo.ERR_VALIDATION_FAILED, "date", "amount", "description");
 	}
 
 	// -- ASSERT
@@ -273,16 +276,17 @@ public class TransactionControllerTest {
 		assertEquals(id, response.getId());
 		assertEquals(0, amount.compareTo(response.getAmount()));
 		assertEquals(description, response.getDescription());
+		assertEquals(TEST_DATE, response.getDate());
 	}
 
 	// -- FACTORIES
 
 	private TransactionRequest request(BigDecimal amount, String description) {
-		return new TransactionRequest(amount, description, randomCategory());
+		return new TransactionRequest(TEST_DATE, amount, description, randomCategory());
 	}
 
 	private TransactionResponse response(Long id, BigDecimal amount, String description) {
-		return new TransactionResponse(id, amount, description, randomCategory());
+		return new TransactionResponse(id, TEST_DATE, amount, description, randomCategory());
 	}
 
 	private TransactionCategory randomCategory() {

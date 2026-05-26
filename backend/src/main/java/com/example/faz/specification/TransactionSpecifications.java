@@ -1,6 +1,7 @@
 package com.example.faz.specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -15,10 +16,32 @@ public final class TransactionSpecifications {
 
 	public static Specification<Transaction> withCriteria(TransactionCriteria criteria) {
 		return Specification.allOf(
+				dateFrom(criteria.getFrom()),
+				dateTo(criteria.getTo()),
 				descriptionContains(criteria.getDescription()),
 				minAmount(criteria.getMinAmount()),
 				maxAmount(criteria.getMaxAmount()),
 				categoryEquals(criteria.getCategory()));
+	}
+
+	public static Specification<Transaction> dateFrom(LocalDate from) {
+		return (root, query, cb) -> {
+			if (from == null) {
+				return null;
+			}
+
+			return cb.greaterThanOrEqualTo(root.get("date"), from.atStartOfDay());
+		};
+	}
+
+	public static Specification<Transaction> dateTo(LocalDate to) {
+		return (root, query, cb) -> {
+			if (to == null) {
+				return null;
+			}
+
+			return cb.lessThan(root.get("date"), to.plusDays(1).atStartOfDay());
+		};
 	}
 
 	public static Specification<Transaction> categoryEquals(TransactionCategory category) {
