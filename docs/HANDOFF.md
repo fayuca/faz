@@ -1,20 +1,20 @@
 # Handoff
 
-> Last updated: 2026-05-26 (conceptual alignment). Read at next boot; rewritten each wrap.
+> Last updated: 2026-05-26 (wrap). Read at next boot; rewritten each wrap.
 
 ## Where we are
 
 **Phase:** Personal expense tracker CV demo — Spring Boot + React ([fayuca/faz](https://github.com/fayuca/faz)).
 
-**Alignments:** Technical ✅ · Conceptual ✅ — [`docs/DESIGN.md`](DESIGN.md) landed 2026-05-26.
+**Alignments:** Technical ✅ · Conceptual ✅ — [`docs/DESIGN.md`](DESIGN.md).
 
-**Current work:** Initial cleanup complete — ready for wrap or next task ([`docs/session/TASK.md`](session/TASK.md)).
+**Current work:** Initial cleanup complete; **5 commits pushed** to `origin/main`. Next milestone: **MVP deploy** (host TBD).
 
 ## Continue here
 
-- [`docs/DESIGN.md`](DESIGN.md) — canonical design (product, MVP, architecture, deploy primer)
-- [`docs/session/TASK.md`](session/TASK.md) — initial cleanup
-- [`docs/session/OVERVIEW.md`](session/OVERVIEW.md)
+- [`docs/DESIGN.md`](DESIGN.md) — deployment primer + MVP scope
+- [`docs/session/CHECKLIST.md`](session/CHECKLIST.md) — MVP deploy ⬜
+- **Next boot:** seed `docs/session/TASK.md` — Docker Compose (backend + frontend + Postgres) per DESIGN
 
 ## Path convention
 
@@ -72,15 +72,14 @@ Read this section at **every boot** before other work. HANDOFF = **project-aware
 
 ## Decisions this session (summary)
 
-- Product: personal expense tracker (not business ledger).
-- MVP: vertical slice minimum (deploy + create/list/filter + run story).
-- Deploy host TBD; primer saved in DESIGN.
-- First dev task: initial cleanup.
-- Initial cleanup complete 2026-05-26 (bugs, date field, frontend README).
-- Budgeting / double-entry: post-MVP backlog.
+- Product: personal expense tracker; budgeting / double-entry post-MVP.
+- MVP: vertical slice minimum; deploy host TBD (Docker Compose first).
+- Initial cleanup complete (category bug, date field, frontend README).
+- Agent collaboration: **step** = next ⬜ only; **go through** = all remaining.
 
 ## Open questions
 
 - **Deploy vendor:** pick after Docker Compose learning step (DESIGN deployment section)
+- **Root README:** still thin — add run instructions + demo URL when deploy exists
 
 ## Profile updates
