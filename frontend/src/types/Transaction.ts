@@ -9,6 +9,7 @@ export const TRANSACTION_CATEGORIES = [
 export type TransactionCategory = typeof TRANSACTION_CATEGORIES[number];
 
 export interface TransactionRequest {
+	date: string;
 	amount: number;
 	description: string;
 	category: TransactionCategory;
@@ -16,6 +17,7 @@ export interface TransactionRequest {
 
 export interface TransactionResponse {
 	id: number;
+	date: string;
 	amount: number;
 	description: string;
 	category: TransactionCategory;

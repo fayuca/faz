@@ -2,6 +2,8 @@ import type { Page, TransactionRequest, TransactionResponse } from "../types/Tra
 import { http } from "./http";
 
 export type TransactionCriteria = {
+	from?: string;
+	to?: string;
 	description?: string;
 	minAmount?: number;
 	maxAmount?: number;

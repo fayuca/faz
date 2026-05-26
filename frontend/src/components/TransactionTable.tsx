@@ -4,12 +4,17 @@ type Props = {
 	transactions: TransactionResponse[];
 };
 
+function formatDate(iso: string): string {
+	return new Date(iso).toLocaleDateString();
+}
+
 function TransactionTable({ transactions }: Props) {
 	return (
 		<table>
 			<thead>
 				<tr>
 					<th>ID</th>
+					<th>Date</th>
 					<th>Amount</th>
 					<th>Description</th>
 					<th>Category</th>
@@ -20,6 +25,7 @@ function TransactionTable({ transactions }: Props) {
 				{transactions.map(transaction => (
 					<tr key={transaction.id}>
 						<td>{transaction.id}</td>
+						<td>{formatDate(transaction.date)}</td>
 						<td>{transaction.amount}</td>
 						<td>{transaction.description}</td>
 						<td>{transaction.category}</td>

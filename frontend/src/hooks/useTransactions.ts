@@ -15,7 +15,6 @@ export function useTransactions() {
 
 	useEffect(() => {
 		async function load() {
-			console.log("abc");
 			setLoading(true);
 
 			try {
