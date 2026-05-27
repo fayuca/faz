@@ -45,8 +45,8 @@ services:
     plan: free
     healthCheckPath: /
     envVars:
-      - key: BACKEND_HOSTPORT
+      - key: BACKEND_PROXY_TARGET
         fromService:
           type: web
           name: faz-backend
-          property: hostport
+          envVarKey: RENDER_EXTERNAL_URL

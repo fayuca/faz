@@ -668,7 +668,7 @@ Same `docker-compose.yml` on a cheap Linux VPS — closest to “drop and restar
 |-------|----------------|-------|
 | Postgres | `faz-db` | `DB_*` env wired via `fromDatabase` |
 | Spring Boot | `faz-backend` | `server.port=${PORT}`; health `/api/transactions` |
-| nginx + React | `faz-frontend` | `BACKEND_HOSTPORT` from `fromService` (private network); public CV URL |
+| nginx + React | `faz-frontend` | `BACKEND_PROXY_TARGET` ← backend `RENDER_EXTERNAL_URL` (free tier: no private-network inbound to web services) |
 
 **Local vs Render:** `application-prod.properties` uses `${DB_HOST:db}` defaults (Compose) or Render-injected `DB_*`. Frontend `nginx.conf.template` + entrypoint: `${PORT}` and `${BACKEND_HOSTPORT}` (default `backend:8080` for Compose).
 

@@ -5,10 +5,14 @@ server {
 	root /usr/share/nginx/html;
 	index index.html;
 
+	# Variable proxy_pass + resolver: defer DNS (Compose + Render public URL).
 	location /api/ {
-		proxy_pass http://${BACKEND_HOSTPORT};
+		resolver 127.0.0.11 8.8.8.8 valid=30s ipv6=off;
+		set $backend "${BACKEND_PROXY_TARGET}";
+		proxy_pass $backend;
 		proxy_http_version 1.1;
-		proxy_set_header Host $host;
+		proxy_ssl_server_name on;
+		proxy_set_header Host $proxy_host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header X-Forwarded-Proto $scheme;
