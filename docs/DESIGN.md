@@ -37,7 +37,7 @@ Deliver **one slice per TASK**. Order is priority, not strict serial — except 
 | P | Slice | Notes |
 |---|--------|--------|
 | **0** | **Solid CRUD** | ✅ Update/delete in UI; `/api/v1/transactions`. |
-| **1** | **App shell** | `<App />` = meta layer + two apps. Corner **app switch** (meta only; not owned by planner or explorer). |
+| **1** | **App shell** | ✅ Meta shell + switch; planner + explorer placeholder; app `0.1.0` in meta. |
 | **2a** | API explorer — UI baseline | Shared style and components. |
 | **2b** | API explorer — API bridge | Wire UI to calls; **shared client/hooks** with budget planner. |
 | **2c** | API explorer — **manifest** | Describes resources, verbs, and **contract version** (aligned with `/api/v1`). |

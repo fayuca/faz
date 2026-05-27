@@ -1,0 +1,51 @@
+.faz-shell {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.faz-shell__meta {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	display: flex;
+	justify-content: flex-end;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--border);
+	background: var(--bg);
+}
+
+.faz-shell__main {
+	flex: 1;
+	padding: 16px 20px 32px;
+	max-width: 1200px;
+	width: 100%;
+	margin: 0 auto;
+	box-sizing: border-box;
+}
+
+.faz-shell__meta label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+}
+
+.faz-shell__meta label > span:first-of-type {
+	color: var(--text);
+}
+
+.faz-shell__meta select {
+	font: inherit;
+	color: var(--text-h);
+	background: var(--bg);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 6px 10px;
+}
+
+.faz-shell__meta label > span:last-of-type {
+	color: var(--text);
+	font-family: var(--mono);
+	font-size: 12px;
+}
