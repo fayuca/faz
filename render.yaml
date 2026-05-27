@@ -13,7 +13,7 @@ services:
     runtime: docker
     rootDir: backend
     plan: free
-    healthCheckPath: /api/transactions
+    healthCheckPath: /api/v1/transactions
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod

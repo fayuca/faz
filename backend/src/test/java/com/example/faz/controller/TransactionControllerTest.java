@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.example.faz.constants.ApiInfo;
+import com.example.faz.constants.ApiPaths;
 import com.example.faz.dto.TransactionCategory;
 import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
@@ -59,7 +60,7 @@ public class TransactionControllerTest {
 	@MockitoBean
 	private TransactionService service;
 
-	private static final String TRANSACTIONS = "/api/transactions";
+	private static final String TRANSACTIONS = ApiPaths.V1_TRANSACTIONS;
 
 	// -- TESTS
 

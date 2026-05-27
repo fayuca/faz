@@ -54,7 +54,7 @@ public class TransactionIntegrationTest {
 	@Autowired
 	private TransactionRepository repository;
 
-	private static final String TRANSACTIONS = "/api/transactions";
+	private static final String TRANSACTIONS = com.example.faz.constants.ApiPaths.V1_TRANSACTIONS;
 
 	// -- TESTS
 
@@ -147,7 +147,7 @@ public class TransactionIntegrationTest {
 
 		// 3
 
-		TransactionResponse requested = response(doGet("/api/transactions/" + id)
+		TransactionResponse requested = response(doGet("/api/v1/transactions/" + id)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
@@ -168,7 +168,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		TransactionResponse response = response(
-				doPut("/api/transactions/" + id, request)
+				doPut("/api/v1/transactions/" + id, request)
 						.andDo(print())
 						.andExpect(status().isOk())
 						.andReturn());
@@ -184,7 +184,7 @@ public class TransactionIntegrationTest {
 
 		// 3
 
-		TransactionResponse requested = response(doGet("/api/transactions/" + id)
+		TransactionResponse requested = response(doGet("/api/v1/transactions/" + id)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());
@@ -198,7 +198,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		ApiError apiError = apiError(
-				doPut("/api/transactions/" + id, request(new BigDecimal("200.00"), "New"))
+				doPut("/api/v1/transactions/" + id, request(new BigDecimal("200.00"), "New"))
 						.andDo(print())
 						.andExpect(status().isNotFound())
 						.andReturn());
@@ -221,7 +221,7 @@ public class TransactionIntegrationTest {
 		// *
 
 		ApiError apiError = apiError(
-				doPut("/api/transactions/" + id, request)
+				doPut("/api/v1/transactions/" + id, request)
 						.andDo(print())
 						.andExpect(status().isBadRequest())
 						.andReturn());
@@ -237,7 +237,7 @@ public class TransactionIntegrationTest {
 
 		// 3
 
-		TransactionResponse requested = response(doGet("/api/transactions/" + id)
+		TransactionResponse requested = response(doGet("/api/v1/transactions/" + id)
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andReturn());

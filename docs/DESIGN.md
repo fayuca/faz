@@ -36,7 +36,7 @@ Deliver **one slice per TASK**. Order is priority, not strict serial — except 
 
 | P | Slice | Notes |
 |---|--------|--------|
-| **0** | **Solid CRUD** | Update/delete in UI + anything else needed for trustworthy create/read/update/delete. **Introduce API path versioning** (`/api/v1/...`) here or immediately after — see [Versioning](#versioning). |
+| **0** | **Solid CRUD** | ✅ Update/delete in UI; `/api/v1/transactions`. |
 | **1** | **App shell** | `<App />` = meta layer + two apps. Corner **app switch** (meta only; not owned by planner or explorer). |
 | **2a** | API explorer — UI baseline | Shared style and components. |
 | **2b** | API explorer — API bridge | Wire UI to calls; **shared client/hooks** with budget planner. |
@@ -58,7 +58,7 @@ Versioning is cross-cutting: paths, manifest, and visible app release.
 | **API contract** | Path prefix `/api/v1/` (e.g. `/api/v1/transactions`). Breaking HTTP or payload changes → new `v2`; keep `v1` until clients migrate. | Backend controllers, OpenAPI, nginx/Vite proxy (still `/api/*`), shared `frontend/src/api/` base URL. |
 | **Manifest** | `version: "v1"` (and per-resource metadata) in the explorer manifest slice. Single source for explorer UI labels and verb lists. | API explorer only; generated or hand-maintained to match OpenAPI. |
 | **App release** | Semver aligned across `backend/pom.xml` and `frontend/package.json` (e.g. `0.1.0` post-MVP). Injected at **build** (Vite `define`, Spring `info` or resource). | Meta shell (switcher corner): show **faz** version, not per-child-app. |
-| **MVP today** | Unversioned `/api/transactions` | Migrate to `v1` in P0; optional short-lived redirect `/api/transactions` → `/api/v1/transactions` if needed for bookmarks. |
+| **Shipped (P0)** | `/api/v1/transactions` | Unversioned `/api/transactions` removed. |
 
 OpenAPI `info.version` tracks **contract** (e.g. `1.0.0` for v1 surface), not the Maven/npm artifact version.
 
@@ -87,7 +87,7 @@ Production adds **nginx** in front of static assets and proxies `/api` to the ba
 | Controller | `controller/TransactionController` | REST + OpenAPI annotations |
 | Errors | `exception/` | Global handler, 404, validation errors |
 
-**API base (MVP):** `/api/transactions` — CRUD, pagination, filter by description / amount range / category / date range. **Target:** `/api/v1/transactions` ([Versioning](#versioning)).
+**API base:** `/api/v1/transactions` — CRUD, pagination, filter by description / amount range / category / date range ([Versioning](#versioning)).
 
 **OpenAPI:** springdoc (`springdoc-openapi-starter-webmvc-ui`); Swagger UI on the backend when running.
 
@@ -106,7 +106,7 @@ Production adds **nginx** in front of static assets and proxies `/api` to the ba
 
 **Stack:** React 19, Vite 8, TypeScript, axios. Dev server proxies `/api` → `localhost:8080`.
 
-**UI today:** create, list, paginate, description filter. Update/delete exist in the API only.
+**UI today:** create, list, edit, delete, paginate, description filter.
 
 ## MVP (shipped)
 

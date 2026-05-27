@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.faz.constants.ApiInfo;
+import com.example.faz.constants.ApiPaths;
 import com.example.faz.dto.PageResponse;
 import com.example.faz.dto.TransactionCriteria;
 import com.example.faz.dto.TransactionRequest;
@@ -32,7 +33,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Transactions")
-@RequestMapping("/api/transactions")
+@RequestMapping(ApiPaths.V1_TRANSACTIONS)
 public class TransactionController {
 	private final TransactionService service;
 

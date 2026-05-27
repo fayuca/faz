@@ -36,3 +36,19 @@ export async function getTransactions(
 
 	return response.data;
 }
+
+export async function updateTransaction(
+	id: number,
+	request: TransactionRequest
+): Promise<TransactionResponse> {
+	const response = await http.put<TransactionResponse>(
+		`/transactions/${id}`,
+		request
+	);
+
+	return response.data;
+}
+
+export async function deleteTransaction(id: number): Promise<void> {
+	await http.delete(`/transactions/${id}`);
+}
