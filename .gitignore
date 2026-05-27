@@ -63,5 +63,10 @@ dist-ssr
 run-dev.ps1
 frontend/eslint.config.js
 
-# Agent / session meta (local only — not published)
+# Cursor — IDE / agent wiring (local; not product)
+.cursor/
+
+# Team — session aids (local; not published)
 docs/session/
+docs/HANDOFF.md
+docs/minutes/
