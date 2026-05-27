@@ -24,23 +24,26 @@ When workspace folder is a child repo, resolve siblings (e.g. `/authority/` → 
 
 ## Project (per repo)
 
-Session content under **`docs/`** — not `.cursor/`.
+**Public:** canonical design at `docs/DESIGN.md` (or project equivalent).
+
+**Meta (local, gitignored in faz):** `docs/session/` — handoff, minutes, task, concept, lesson, etc.
 
 | Artifact | Path |
 |----------|------|
-| Handoff | `docs/HANDOFF.md` |
+| Handoff | `docs/session/HANDOFF.md` |
 | Overview | `docs/session/OVERVIEW.md` |
 | Checklist | `docs/session/CHECKLIST.md` |
 | Task | `docs/session/TASK.md` |
+| Concept | `docs/session/CONCEPT.md` |
+| Lesson | `docs/session/LESSON.md` |
 | Draft | `docs/session/DRAFT.md` |
-| Minutes | `docs/minutes/YYYY-MM-DD.md` |
-| Canonical design | `docs/DESIGN.md` (or project equivalent) |
+| Minutes | `docs/session/minutes/YYYY-MM-DD.md` |
 
 Rules and commands (when installed): `.cursor/rules/`, `.cursor/commands/`.
 
 ## Boot / wrap
 
-**Project-aware instructions live in HANDOFF** — read `docs/HANDOFF.md` boot/wrap sections before generic rule files.
+**Project-aware instructions live in HANDOFF** — read `docs/session/HANDOFF.md` boot/wrap sections before generic rule files.
 
 Installed commands: `/authority/commands/`. DEV specs (manager): `/double-click/stubs/commands/`.
 

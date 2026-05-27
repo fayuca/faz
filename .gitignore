@@ -62,3 +62,6 @@ dist-ssr
 *.sw?
 run-dev.ps1
 frontend/eslint.config.js
+
+# Agent / session meta (local only — not published)
+docs/session/

@@ -2,12 +2,12 @@
 
 Run the boot sequence for **this project**.
 
-**First:** read `docs/HANDOFF.md` — **Boot training** section instructs profile scope and project-aware setup. Follow HANDOFF before loading generic rules from `/double-click/stubs/rules/` when HANDOFF points you there.
+**First:** read `docs/session/HANDOFF.md` — **Boot training** section instructs profile scope and project-aware setup. Follow HANDOFF before loading generic rules from `/double-click/stubs/rules/` when HANDOFF points you there.
 
 Then read **in order** (skip if missing; note skips):
 
 1. Profile — path and scope from HANDOFF (default MVP: `/authority/facts/profile/PROFILE.md`, full file)
-2. `docs/HANDOFF.md` — full file (continuity + training)
+2. `docs/session/HANDOFF.md` — full file (continuity + training)
 3. `docs/session/OVERVIEW.md`
 4. `docs/session/CHECKLIST.md`
 5. `docs/session/TASK.md`

@@ -11,7 +11,7 @@ Prose facts about the user, by discipline. Not project design.
 
 **When to read**
 
-Only when **HANDOFF** (or explicit user message) instructs you to — typically at boot. Do not load by default; authority exists so agents read **only what they need**.
+Only when **HANDOFF** (`docs/session/HANDOFF.md`, or explicit user message) instructs you to — typically at boot.
 
 **How to read (when instructed)**
 
