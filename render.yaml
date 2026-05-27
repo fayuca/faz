@@ -1,0 +1,52 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Apply: Dashboard → New → Blueprint → connect fayuca/faz
+
+databases:
+  - name: faz-db
+    plan: free
+    databaseName: faz
+    user: faz
+
+services:
+  - type: web
+    name: faz-backend
+    runtime: docker
+    rootDir: backend
+    plan: free
+    healthCheckPath: /api/transactions
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_HOST
+        fromDatabase:
+          name: faz-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: faz-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: faz-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: faz-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: faz-db
+          property: password
+
+  - type: web
+    name: faz-frontend
+    runtime: docker
+    rootDir: frontend
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: BACKEND_HOSTPORT
+        fromService:
+          type: web
+          name: faz-backend
+          property: hostport

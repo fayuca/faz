@@ -21,6 +21,14 @@ Full-stack vertical slice (DB → Spring Boot → React) centered on **Transacti
 
 **Tests:** `cd backend` → `./mvnw test`
 
+**Docker Compose** (Postgres + backend + nginx frontend):
+
+```bash
+docker compose up --build
+```
+
+Open http://localhost:8080 — UI and `/api` share one origin via nginx.
+
 ## Current task
 
 **MVP deploy** — next milestone; TASK cleared at wrap. Next boot seeds Docker Compose work per **[DESIGN.md](../DESIGN.md)** deployment section.
