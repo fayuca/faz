@@ -1,6 +1,7 @@
 # Meta — local / installed (product repos)
 .cursor/
 .team/
+ariel/
 
 # Editor (G3 — .vscode/ also listed below for Java/Node tooling)
 HELP.md
@@ -55,10 +56,9 @@ dist
 dist-ssr
 *.local
 
-# OpenAPI snapshot + codegen (regen from running backend — see README)
-frontend/openapi/
-frontend/src/api/generated/*
-!frontend/src/api/generated/dtos.ts
+# OpenAPI snapshot + generated TS (committed — regen after contract changes; see README)
+frontend/openapi/*
+!frontend/openapi/openapi.json
 
 # Editor directories and files
 .vscode/*

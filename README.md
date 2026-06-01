@@ -33,14 +33,15 @@ npm install
 npm run dev
 ```
 
-**API types** (backend must be running on port 8080):
+**API types** (after backend contract changes):
 
 ```bash
 cd frontend
-npm run codegen:api:live
+npm run codegen:api:live          # refresh openapi/openapi.json + src/api/generated/api.ts from /v3/api-docs
+# or offline: npm run codegen:api  # regen api.ts from committed openapi.json only
 ```
 
-Regenerates `src/api/generated/api.ts` from `/v3/api-docs`. Not committed — run after backend contract changes. Hand-maintained aliases live in `src/api/generated/dtos.ts`.
+Commit **`frontend/openapi/openapi.json`** and **`src/api/generated/api.ts`** together when the contract changes (Docker/Render build uses the committed files; no codegen in the image). Hand-maintained aliases live in `src/api/generated/dtos.ts`.
 
 **Tests:**
 
