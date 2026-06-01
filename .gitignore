@@ -55,6 +55,11 @@ dist
 dist-ssr
 *.local
 
+# OpenAPI snapshot + codegen (regen from running backend — see README)
+frontend/openapi/
+frontend/src/api/generated/*
+!frontend/src/api/generated/dtos.ts
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
