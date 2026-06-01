@@ -1,6 +1,6 @@
 # faz
 
-> Portfolio demo — personal side project, not a production service.
+> Portfolio demo
 
 Personal expense tracker: record spending, filter by description, browse by category.
 
@@ -33,19 +33,32 @@ npm install
 npm run dev
 ```
 
+**API types** (backend must be running on port 8080):
+
+```bash
+cd frontend
+npm run codegen:api:live
+```
+
+Regenerates `src/api/generated/api.ts` from `/v3/api-docs`. Not committed — run after backend contract changes. Hand-maintained aliases live in `src/api/generated/dtos.ts`.
+
 **Tests:**
 
 ```bash
 cd backend
 ./mvnw test
+
+cd ../frontend
+npm run build
 ```
 
 ## Features
 
-- Create, update, delete, list, and filter transactions
-- Categories for personal spending (food, transport, etc.)
+- Meta shell with **budget planner** and **API explorer** apps
+- Create, update, delete, list, and filter transactions (v1 and v2 API)
 - Validation and structured API errors
 - Backend tests (unit, controller, integration)
+- Categories for personal spending (food, transport, etc.)
 
 ## Stack
 
@@ -56,4 +69,4 @@ See [`docs/DESIGN.md`](docs/DESIGN.md) for architecture and API detail.
 
 ## License
 
-MIT License
+Source code and documentation (including `docs/`): [MIT](LICENSE).
