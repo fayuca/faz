@@ -1,0 +1,358 @@
+.planner {
+	text-align: left;
+}
+
+.planner .faz-page-header h1,
+.planner__page-head-text h1 {
+	color: var(--app-heading);
+}
+
+.planner__page-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+.planner__page-head-text {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.planner__page-head-text h1 {
+	font-size: 28px;
+	margin: 0;
+	letter-spacing: -0.5px;
+}
+
+.planner__page-head-text p {
+	font-size: 14px;
+	color: var(--text);
+	margin: 4px 0 0;
+}
+
+.planner__layout {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.planner__nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	flex: 0 0 auto;
+	align-self: center;
+	justify-content: flex-end;
+}
+
+.planner__nav .faz-btn {
+	min-width: 7.5rem;
+	text-align: left;
+	justify-content: flex-start;
+}
+
+.planner__filters {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--app-border, var(--border));
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.planner__filter-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--app-heading, var(--text-h));
+	background: var(--app-surface, var(--social-bg));
+	border: none;
+	padding: 8px 12px;
+	cursor: pointer;
+	text-align: left;
+}
+
+.planner__section-header {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--app-heading, var(--text-h));
+	background: var(--app-surface, var(--social-bg));
+	padding: 8px 12px;
+}
+
+.planner__filter-toggle:hover {
+	background: color-mix(in srgb, var(--accent-bg) 40%, var(--app-surface, var(--social-bg)));
+}
+
+.planner__filter-toggle:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: -2px;
+}
+
+.planner__filter-toggle-icon {
+	color: var(--accent);
+	font-size: 12px;
+}
+
+.planner__filters-body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px;
+	background: color-mix(in srgb, var(--accent-bg) 25%, var(--bg));
+	border-top: 1px solid var(--app-border, var(--border));
+}
+
+.planner__filters-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: flex-end;
+	width: 100%;
+}
+
+.planner__filters-field {
+	flex: 1 1 9rem;
+	min-width: 9rem;
+}
+
+.planner__filters-field--wide {
+	flex: 2 1 14rem;
+	min-width: 14rem;
+}
+
+.planner__filters-field .faz-input,
+.planner__filters-field .faz-select {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.planner__filters-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+}
+
+.planner__filters-error {
+	flex: 1 1 auto;
+	margin: 0;
+	min-width: 0;
+	text-align: left;
+}
+
+.planner__filters-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
+.planner__table-wrap {
+	overflow-x: auto;
+	border: 1px solid var(--app-border, var(--border));
+	border-radius: 6px;
+	scrollbar-width: auto;
+	scrollbar-color: var(--scrollbar-thumb, rgba(100, 116, 139, 0.35))
+		var(--scrollbar-track, rgba(100, 116, 139, 0.1));
+}
+
+.planner__table-wrap::-webkit-scrollbar {
+	height: 20px;
+}
+
+.planner__table-wrap::-webkit-scrollbar-track {
+	background: var(--scrollbar-track, rgba(100, 116, 139, 0.1));
+	border-radius: 6px;
+}
+
+.planner__table-wrap::-webkit-scrollbar-thumb {
+	background-color: var(--scrollbar-thumb, rgba(100, 116, 139, 0.35));
+	border-radius: 6px;
+	border: 2px solid var(--bg);
+	background-clip: padding-box;
+}
+
+.planner__table {
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: collapse;
+	font-size: 14px;
+}
+
+.planner__col-date {
+	width: 8rem;
+}
+
+.planner__col-amount {
+	width: 7rem;
+}
+
+.planner__col-currency {
+	width: 4.5rem;
+}
+
+.planner__col-category {
+	width: 9rem;
+}
+
+.planner__col-actions {
+	width: 11rem;
+}
+
+.planner__table th,
+.planner__table td {
+	padding: 8px 10px;
+	text-align: left;
+	border-bottom: 1px solid var(--app-border, var(--border));
+	vertical-align: middle;
+}
+
+.planner__table th {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--app-heading, var(--text));
+	background: var(--app-surface, var(--social-bg));
+}
+
+.planner__sort-header {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	color: inherit;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.planner__table .planner__col-align-end {
+	text-align: right;
+}
+
+.planner__table .planner__col-align-end .planner__sort-header {
+	justify-content: flex-end;
+	width: 100%;
+}
+
+.planner__table .planner__col-align-center {
+	text-align: center;
+}
+
+.planner__table .planner__col-align-center .planner__sort-header {
+	justify-content: center;
+	width: 100%;
+}
+
+.planner__sort-header:hover {
+	color: var(--accent);
+}
+
+.planner__sort-header:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+.planner__sort-indicator {
+	font-size: 10px;
+	color: var(--accent);
+}
+
+.planner__table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.planner__table tbody td {
+	color: var(--text-h);
+}
+
+.planner__cell-description {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 0;
+}
+
+.planner__cell-amount {
+	font-variant-numeric: tabular-nums;
+}
+
+.planner__cell-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	justify-content: flex-end;
+}
+
+.planner__table-empty {
+	font-size: 14px;
+	color: var(--text);
+	text-align: center;
+	padding: 24px 10px;
+}
+
+.planner__pagination {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+	font-size: 14px;
+	color: var(--text);
+}
+
+.planner__submit {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--app-border, var(--border));
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.planner__submit-body {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: flex-end;
+	padding: 12px;
+	background: color-mix(in srgb, var(--accent-bg) 55%, var(--bg));
+	border-top: 1px solid var(--app-border, var(--border));
+}
+
+.planner__submit-field {
+	flex: 1 1 9rem;
+	min-width: 9rem;
+}
+
+.planner__submit-field--wide {
+	flex: 2 1 14rem;
+	min-width: 14rem;
+}
+
+.planner__submit-field .faz-input,
+.planner__submit-field .faz-select {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.planner__submit-action {
+	flex: 0 0 auto;
+}
+
+.planner__submit-error {
+	flex: 1 1 100%;
+	margin: 0;
+}

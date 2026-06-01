@@ -1,5 +1,6 @@
-import TransactionsPage from "../../pages/TransactionsPage";
+import TransactionsView from "./views/TransactionsView";
+import "./planner.css";
 
 export default function BudgetPlannerApp() {
-    return <TransactionsPage />;
+	return <TransactionsView />;
 }

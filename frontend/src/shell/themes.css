@@ -1,0 +1,65 @@
+/* Shell themes — inherit into app + shared ui */
+
+.faz-shell--planner {
+	--accent: #0d9488;
+	--accent-bg: rgba(13, 148, 136, 0.14);
+	--accent-border: rgba(13, 148, 136, 0.55);
+	--app-surface: rgba(13, 148, 136, 0.1);
+	--app-border: rgba(13, 148, 136, 0.28);
+	--app-heading: #0f766e;
+	--app-bg: #f0fdfa;
+	--meta-bg: #ccfbf1;
+	--meta-border: rgba(13, 148, 136, 0.22);
+	--scrollbar-track: rgba(13, 148, 136, 0.08);
+	--scrollbar-thumb: rgba(13, 148, 136, 0.32);
+	--scrollbar-thumb-hover: rgba(13, 148, 136, 0.48);
+}
+
+.faz-shell--explorer {
+	--accent: #a855f7;
+	--accent-bg: rgba(168, 85, 247, 0.1);
+	--accent-border: rgba(168, 85, 247, 0.38);
+	--app-surface: rgba(168, 85, 247, 0.06);
+	--app-border: rgba(168, 85, 247, 0.18);
+	--app-heading: #6d28d9;
+	--app-error: #9333ea;
+	--app-bg: #f9f8fb;
+	--meta-bg: #f3f0f7;
+	--meta-border: rgba(168, 85, 247, 0.14);
+	--scrollbar-track: rgba(168, 85, 247, 0.08);
+	--scrollbar-thumb: rgba(168, 85, 247, 0.32);
+	--scrollbar-thumb-hover: rgba(168, 85, 247, 0.48);
+}
+
+@media (prefers-color-scheme: dark) {
+	.faz-shell--planner {
+		--accent: #2dd4bf;
+		--accent-bg: rgba(45, 212, 191, 0.16);
+		--accent-border: rgba(45, 212, 191, 0.5);
+		--app-surface: rgba(45, 212, 191, 0.1);
+		--app-border: rgba(45, 212, 191, 0.28);
+		--app-heading: #5eead4;
+		--app-bg: #0c1917;
+		--meta-bg: #134e4a;
+		--meta-border: rgba(45, 212, 191, 0.25);
+		--scrollbar-track: rgba(45, 212, 191, 0.1);
+		--scrollbar-thumb: rgba(45, 212, 191, 0.34);
+		--scrollbar-thumb-hover: rgba(45, 212, 191, 0.52);
+	}
+
+	.faz-shell--explorer {
+		--accent: #c084fc;
+		--accent-bg: rgba(192, 132, 252, 0.12);
+		--accent-border: rgba(192, 132, 252, 0.38);
+		--app-surface: rgba(192, 132, 252, 0.07);
+		--app-border: rgba(192, 132, 252, 0.16);
+		--app-heading: #c4b5fd;
+		--app-error: #e879f9;
+		--app-bg: #17161c;
+		--meta-bg: #221f2a;
+		--meta-border: rgba(192, 132, 252, 0.16);
+		--scrollbar-track: rgba(192, 132, 252, 0.1);
+		--scrollbar-thumb: rgba(192, 132, 252, 0.34);
+		--scrollbar-thumb-hover: rgba(192, 132, 252, 0.52);
+	}
+}

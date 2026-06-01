@@ -2,6 +2,7 @@
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
+	background: var(--app-bg, var(--bg));
 }
 
 .faz-shell__meta {
@@ -11,8 +12,8 @@
 	display: flex;
 	justify-content: flex-end;
 	padding: 12px 16px;
-	border-bottom: 1px solid var(--border);
-	background: var(--bg);
+	border-bottom: 1px solid var(--meta-border, var(--border));
+	background: var(--meta-bg, var(--bg));
 }
 
 .faz-shell__main {
@@ -22,6 +23,7 @@
 	width: 100%;
 	margin: 0 auto;
 	box-sizing: border-box;
+	background: var(--app-bg, var(--bg));
 }
 
 .faz-shell__meta label {
@@ -33,15 +35,6 @@
 
 .faz-shell__meta label > span:first-of-type {
 	color: var(--text);
-}
-
-.faz-shell__meta select {
-	font: inherit;
-	color: var(--text-h);
-	background: var(--bg);
-	border: 1px solid var(--border);
-	border-radius: 6px;
-	padding: 6px 10px;
 }
 
 .faz-shell__meta label > span:last-of-type {
