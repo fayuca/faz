@@ -12,6 +12,11 @@ import {
 	type TransactionCategory,
 	type TransactionResponseV2,
 } from "../../../types/Transaction";
+import {
+	DOMAIN_BOOK_CURRENCY,
+	UI_DEFAULT_CATEGORY,
+	UI_DEFAULT_CURRENCY,
+} from "../../../domainDefaults";
 import { Button, Select, TextInput } from "../../../ui";
 import {
 	formatZodError,
@@ -60,8 +65,8 @@ function emptyFormState(): FormState {
 		date: todayLocalDate(),
 		amount: "",
 		description: "",
-		category: "OTHER",
-		currency: "USD",
+		category: UI_DEFAULT_CATEGORY,
+		currency: UI_DEFAULT_CURRENCY,
 	};
 }
 
@@ -95,12 +100,14 @@ export default function ExpenseForm({ mode, transaction, onSuccess }: Props) {
 	const submitLabel = mode === "update" ? "Update" : "Add";
 
 	async function handleSubmit() {
+		const currency = form.currency || DOMAIN_BOOK_CURRENCY;
+
 		const result = parseTransactionRequestV2({
 			date: toLocalDateTime(form.date),
 			amount: Number(form.amount),
 			description: form.description,
 			category: form.category,
-			currency: form.currency,
+			currency,
 		});
 
 		if (!result.success) {

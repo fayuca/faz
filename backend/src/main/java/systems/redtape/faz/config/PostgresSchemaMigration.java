@@ -8,6 +8,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import systems.redtape.faz.constants.FazDefaults;
+
 /**
  * Idempotent patches for PostgreSQL volumes created before {@code currency} existed.
  * Hibernate {@code ddl-auto=update} cannot add a NOT NULL column when rows already exist.
@@ -34,7 +36,8 @@ public class PostgresSchemaMigration implements SmartInitializingSingleton {
 			jdbcTemplate.execute(
 					"ALTER TABLE transaction ADD COLUMN IF NOT EXISTS currency VARCHAR(255)");
 			int updated = jdbcTemplate.update(
-					"UPDATE transaction SET currency = 'USD' WHERE currency IS NULL");
+					"UPDATE transaction SET currency = ? WHERE currency IS NULL",
+					FazDefaults.BOOK_CURRENCY.name());
 			if (updated > 0) {
 				log.info("Backfilled currency for {} existing transaction row(s)", updated);
 			}

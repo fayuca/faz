@@ -79,6 +79,17 @@ public final class TransactionTestFixtures {
 		return transaction;
 	}
 
+	public static Transaction transaction(
+			Long id,
+			BigDecimal amount,
+			String description,
+			TransactionCategory category,
+			Currency currency) {
+		Transaction transaction = transaction(amount, description, category, currency);
+		transaction.setId(id);
+		return transaction;
+	}
+
 	public static BigDecimal amount(int i) {
 		return new BigDecimal(i * 100);
 	}

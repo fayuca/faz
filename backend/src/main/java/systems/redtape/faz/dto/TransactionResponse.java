@@ -3,17 +3,6 @@ package systems.redtape.faz.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
-@Schema(example = """
-		{
-		  "id": 1,
-		  "date": "2026-05-26T12:00:00",
-		  "amount": 100.00,
-		  "description": "Lunch",
-		  "category": "FOOD"
-		}
-		""")
 public class TransactionResponse {
 	private Long id;
 	private LocalDateTime date;

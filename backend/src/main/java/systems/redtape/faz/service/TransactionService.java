@@ -64,11 +64,7 @@ public class TransactionService {
 
 	public TransactionResponse update(Long id, TransactionRequest request) {
 		Transaction transaction = requireTransaction(id);
-
-		transaction.setAmount(request.getAmount());
-		transaction.setDescription(request.getDescription());
-		transaction.setCategory(request.getCategory());
-		transaction.setDate(request.getDate());
+		transaction.applyV1(request);
 
 		Transaction saved = repository.save(transaction);
 		return saved.response();

@@ -29,6 +29,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import systems.redtape.faz.constants.ApiInfo;
+import systems.redtape.faz.constants.FazDefaults;
+import systems.redtape.faz.dto.Currency;
 import systems.redtape.faz.dto.TransactionCategory;
 import systems.redtape.faz.dto.TransactionCriteria;
 import systems.redtape.faz.dto.TransactionRequest;
@@ -102,6 +104,38 @@ public class TransactionServiceTest {
 
 		assertTransactionResponse(response, id, newAmount, newDescription, newDate);
 		assertEquals(newCategory, response.getCategory());
+	}
+
+	@Test
+	void shouldPreserveCurrencyOnV1Update() {
+		Long id = 1L;
+		Transaction existing = transaction(
+				id,
+				new BigDecimal("50.00"),
+				"EUR lunch",
+				TransactionCategory.FOOD,
+				Currency.EUR);
+		TransactionRequest updateRequest = request(
+				TEST_DATE,
+				new BigDecimal("55.00"),
+				"EUR lunch updated",
+				TransactionCategory.TRANSPORT);
+
+		when(repository.findById(id)).thenReturn(Optional.of(existing));
+		when(repository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		service.update(id, updateRequest);
+
+		assertEquals(Currency.EUR, existing.getCurrency());
+	}
+
+	@Test
+	void shouldApplyBookCurrencyOnV1Create() {
+		TransactionRequest request = request(new BigDecimal("10.00"), "Lunch");
+
+		Transaction mapped = Transaction.from(request);
+
+		assertEquals(FazDefaults.BOOK_CURRENCY, mapped.getCurrency());
 	}
 
 	@Test

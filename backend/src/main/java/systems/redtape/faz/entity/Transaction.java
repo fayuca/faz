@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import systems.redtape.faz.constants.FazDefaults;
 import systems.redtape.faz.dto.Currency;
 import systems.redtape.faz.dto.TransactionCategory;
 import systems.redtape.faz.dto.TransactionRequest;
@@ -51,7 +52,7 @@ public class Transaction {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Currency currency = Currency.USD;
+	private Currency currency = FazDefaults.BOOK_CURRENCY;
 
 	// -
 
@@ -88,8 +89,15 @@ public class Transaction {
 		transaction.setAmount(request.getAmount());
 		transaction.setDescription(request.getDescription());
 		transaction.setCategory(request.getCategory());
-		transaction.setCurrency(Currency.USD);
+		transaction.setCurrency(FazDefaults.BOOK_CURRENCY);
 		return transaction;
+	}
+
+	public void applyV1(TransactionRequest request) {
+		setDate(request.getDate());
+		setAmount(request.getAmount());
+		setDescription(request.getDescription());
+		setCategory(request.getCategory());
 	}
 
 	public static Transaction fromV2(TransactionRequestV2 request) {
