@@ -1,9 +1,7 @@
 package systems.redtape.faz.support;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import systems.redtape.faz.dto.Currency;

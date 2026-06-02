@@ -2,7 +2,6 @@ package systems.redtape.faz.service;
 
 import static systems.redtape.faz.support.MockMvcJsonSupport.assertTransactionResponse;
 import static systems.redtape.faz.support.TransactionTestFixtures.TEST_DATE;
-import static systems.redtape.faz.support.TransactionTestFixtures.randomCategory;
 import static systems.redtape.faz.support.TransactionTestFixtures.request;
 import static systems.redtape.faz.support.TransactionTestFixtures.transaction;
 import static org.junit.jupiter.api.Assertions.assertEquals;
