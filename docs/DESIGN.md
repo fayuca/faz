@@ -1,188 +1,135 @@
 # faz — design
 
-> Product and technical design. Entry point: [`README.md`](../README.md).
+> Portfolio demo — domain-driven REST API, personal expense tracker, and in-app API explorer in one shell.
+
+Technical how-to: [`README.md`](../README.md).
 
 ## Overview
 
-**faz** is a **personal expense tracker**: record spending lines, browse and filter them, and see totals over time.
+**faz** is a **portfolio demo**: a versioned, domain-driven REST API with a **budget planner** for spending lines (record, browse, filter) and an in-app **API explorer**, delivered in one client shell and a single deploy.
 
 **Repository:** [fayuca/faz](https://github.com/fayuca/faz)
 
-## Goals
-
-- Track personal expenses with amount, description, category, and date.
-- Provide a simple web UI for create, list, and filter.
-- Expose a REST API suitable for future clients or integrations.
-- Run locally for development and in Docker / cloud for a hosted instance.
-
-## Non-goals (current)
-
-- Business or vendor ledger semantics.
-- Authentication, multi-user accounts, or roles.
-- Full accounting (double-entry, chart of accounts).
-- Production operations (monitoring, CI/CD) beyond basic deploy.
-
 ## Product identity
 
-**What this is:** an individual **personal expense tracker**. A transaction is a spending line: amount, description, category, and date.
+An individual **personal expense tracker**. A transaction is a **spending line**: amount, description, category, date, and (v2) currency. Categories are personal (`FOOD`, `TRANSPORT`, `ENTERTAINMENT`, `UTILITIES`, `OTHER`). Amounts are unsigned positives—expense-only semantics.
 
-**What this is not:** a small-business P&L tool or double-entry bookkeeping system.
+### Apps in the shell
 
-**Categories** (`FOOD`, `TRANSPORT`, `ENTERTAINMENT`, `UTILITIES`, `OTHER`) fit personal spending. Amounts are unsigned positives (expense-only semantics).
+| App | Role |
+| --- | --- |
+| **Budget planner** | Product UI — CRUD, filters, sort, pagination |
+| **API explorer** | Manifest-driven playground for calling and inspecting the API |
 
-### Roadmap (post-MVP)
+The planner and explorer share one deploy, one API client, generated types, validation conventions, and UI components. The explorer supports maintenance and review; it is not a separate product or host.
 
-Deliver **one slice per TASK**. Order is priority, not strict serial — except versioning and shared API wiring, which cut across slices.
-
-| P | Slice | Notes |
-|---|--------|--------|
-| **0** | **Solid CRUD** | ✅ Update/delete in UI; `/api/v1/transactions`. |
-| **1** | **App shell** | ✅ Meta shell + switch; planner + explorer placeholder; app `0.1.0` in meta. |
-| **2a** | API explorer — UI baseline | Shared style and components. |
-| **2b** | API explorer — API bridge | Wire UI to calls; **shared client/hooks** with budget planner. |
-| **2c** | API explorer — **manifest** | Describes resources, verbs, and **contract version** (aligned with `/api/v1`). |
-| **3** | Repetitive work | One item at a time: explorer **verbs**, planner **CRUD screens**, etc. Often finish one app before the other. |
-| **4** | Planner — expense reports | |
-| **5** | Planner — bookkeeping | Large; after reports. |
-
-**Two in-app products:** **budget planner** (transactions today → reports → bookkeeping) and **API explorer** (manifest-driven). MVP UI is planner-only; explorer and shell follow the table.
-
-**Backlog (unchanged intent):** monthly category caps — folded into planner work, not a separate MVP line.
-
-### Versioning
-
-Versioning is cross-cutting: paths, manifest, and visible app release.
-
-| Layer | Convention | Consumer |
-|-------|------------|----------|
-| **API contract** | Path prefix `/api/v1/` (e.g. `/api/v1/transactions`). Breaking HTTP or payload changes → new `v2`; keep `v1` until clients migrate. | Backend controllers, OpenAPI, nginx/Vite proxy (still `/api/*`), shared `frontend/src/api/` base URL. |
-| **Manifest** | `version: "v1"` (and per-resource metadata) in the explorer manifest slice. Single source for explorer UI labels and verb lists. | API explorer only; generated or hand-maintained to match OpenAPI. |
-| **App release** | Semver aligned across `backend/pom.xml` and `frontend/package.json` (e.g. `0.1.0` post-MVP). Injected at **build** (Vite `define`, Spring `info` or resource). | Meta shell (switcher corner): show **faz** version, not per-child-app. |
-| **Shipped (P0)** | `/api/v1/transactions` | Unversioned `/api/transactions` removed. |
-
-OpenAPI `info.version` tracks **contract** (e.g. `1.0.0` for v1 surface), not the Maven/npm artifact version.
+Future work: [ROADMAP.md](../.team/session/ROADMAP.md) *(session)*.
 
 ## Architecture
 
+Architecture is documented here; README lists commands and stack.
+
+### System shape
+
+The React **shell** switches between **budget planner** and **API explorer** in the client—no separate routes or hosts. Both apps use the same origin, API client, generated types, validation conventions, and UI components.
+
 ```
 ┌─────────────┐     /api/*      ┌──────────────────────────────────┐
-│   React     │ ──────────────► │  Spring Boot (embedded Tomcat)   │
+│   React     │ ──────────────► │  Spring Boot                     │
 │   Vite      │   axios + proxy │  Controller → Service → JPA      │
-│  frontend/  │   (dev only)    │  HSQLDB (dev) · Postgres (prod)  │
+│  (shell)    │   (dev only)    │  HSQLDB (dev) · Postgres (prod)  │
 └─────────────┘                 └──────────────────────────────────┘
+                                      ▲
+                              nginx (Compose / Render)
 ```
 
-Production adds **nginx** in front of static assets and proxies `/api` to the backend (see Deployment).
+In development the Vite dev server proxies `/api` to the backend. In Compose and on Render, nginx serves static assets and proxies `/api` to the backend so the UI and API share one origin.
 
-### Backend (`backend/`)
+### Domain-driven API
 
-| Layer | Package / path | Role |
-|-------|----------------|------|
-| Entry | `FazApplication.java` | Spring Boot main |
-| Entity | `entity/Transaction` | JPA model |
-| DTOs | `dto/` | Request, response, criteria, pagination |
-| Repository | `repository/TransactionRepository` | Spring Data JPA |
-| Specifications | `specification/TransactionSpecifications` | Dynamic filters |
-| Service | `service/TransactionService` | Business logic |
-| Controller | `controller/TransactionController` | REST + OpenAPI annotations |
-| Errors | `exception/` | Global handler, 404, validation errors |
+Business rules live in the Java domain layer, not in controllers or OpenAPI annotations.
 
-**API base:** `/api/v1/transactions` — CRUD, pagination, filter by description / amount range / category / date range ([Versioning](#versioning)).
+- OpenAPI describes JSON on the wire; defaults, version-specific field rules, and persistence mapping live in services and entities.
+- Each API version maps only the fields its DTO exposes (e.g. a v1 update must not clobber v2-only columns).
+- Planner form defaults (currency, category) satisfy UX; they are not part of the API contract.
 
-**OpenAPI:** springdoc (`springdoc-openapi-starter-webmvc-ui`); Swagger UI on the backend when running.
+### Versioned HTTP contract
 
-**Stack:** Java 22, Spring Boot 4.0.6, Spring Data JPA, HSQLDB (in-memory dev), PostgreSQL (prod), JUnit 5, Mockito, MockMvc.
+Breaking changes get a new path prefix (`/api/v1`, `/api/v2`, …). Non-breaking changes extend the current prefix. New endpoints do not require a new prefix. Older versions stay available until clients migrate.
 
-**Tests:** `FazApplicationTests`, `TransactionServiceTest`, `TransactionControllerTest`, `TransactionIntegrationTest`.
+See [Versioning](#versioning) for manifest, app release, and OpenAPI doc version.
 
-### Frontend (`frontend/`)
+### OpenAPI and manifest
 
-| Area | Path | Role |
-|------|------|------|
-| Entry | `src/main.tsx`, `App.tsx` | Shell → meta switch + planner + explorer (post-MVP) |
-| Page | `pages/TransactionsPage.tsx` | Planner: list, filter, create (CRUD completion in P0) |
-| Components | `components/` | Form, table |
-| Data | `hooks/useTransactions.ts`, `api/` | Axios client, criteria |
+OpenAPI and the explorer **manifest** answer different questions. OpenAPI is the wire contract (codegen, Swagger, committed snapshot for production frontend builds). The manifest lists resources, verbs, and per-version request/query shapes for the explorer. Keep them aligned when the contract changes; tests guard manifest completeness per declared version.
 
-**Stack:** React 19, Vite 8, TypeScript, axios. Dev server proxies `/api` → `localhost:8080`.
+Production frontend images build from the committed `openapi.json` and generated `api.ts`, without a live backend at build time. After contract changes, regen locally and commit the snapshot and generated files together (see README).
 
-**UI today:** create, list, edit, delete, paginate, description filter.
+### Backend (design view)
 
-## MVP (shipped)
+Layering is Controller → Service → JPA repository. List filters use JPA specifications. Errors are structured (validation, not-found).
 
-| Area | Status |
-|------|--------|
-| REST API (CRUD, filters) | Done |
-| Frontend create + list + filter | Done |
-| Local dev (HSQLDB) | Done |
-| Docker Compose (Postgres + nginx) | Done |
-| Hosted deploy (Render) | Done |
+| Concern | Approach |
+| ------- | -------- |
+| Persistence | HSQLDB in-memory for local dev and tests; PostgreSQL in Compose and Render (`prod` profile) |
+| API surface | springdoc OpenAPI; controllers annotated for wire docs, logic in services |
+| Schema drift | Hibernate `ddl-auto=update` in dev; prod Postgres may need migration hook for breaking column changes |
 
-## Local development
+### Frontend (design view)
 
-**Backend** (port 8080):
+The React shell switches between planner and explorer. The planner provides list and form views, filters, pagination, and Zod validation on forms. The explorer drives requests from the manifest (verb bar, request panels); a coverage guard warns when the manifest lags OpenAPI.
 
-```bash
-cd backend
-./mvnw spring-boot:run    # Windows: mvnw.cmd spring-boot:run
-```
+API types are generated from OpenAPI; DTO aliases are hand-maintained where codegen names are awkward.
 
-**Frontend** (Vite dev server, proxies `/api`):
+### Validation
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+Request DTOs use Jakarta validation on the server; forms use Zod on the client, aligned by convention. Both apps surface structured errors from the API.
 
-**Tests:**
+### Delivery
 
-```bash
-cd backend
-./mvnw test
-```
+| Environment | Shape |
+| ----------- | ----- |
+| **Local dev** | Backend `:8080` + Vite `:5173` with proxy |
+| **Compose** | Postgres, backend, and nginx frontend on `:8080` (prod-like, single origin) |
+| **Render** | Managed Postgres, Docker backend, Docker frontend (nginx); push to `main` deploys |
 
-**Docker Compose** (Postgres + backend + nginx frontend):
+Commands, profiles, and URLs: README.
 
-```bash
-docker compose up --build
-```
+## Versioning
 
-Open http://localhost:8080 — UI and `/api` share one origin via nginx.
+| Layer | Convention | Notes |
+| ----- | ---------- | ----- |
+| **API contract** | Path prefix `/api/v1`, `/api/v2`, … | Breaking HTTP or payload changes → new prefix; keep older until clients migrate |
+| **Manifest** | Per-resource metadata aligned with OpenAPI | Explorer only |
+| **App release** | Semver in `pom.xml` / `package.json` | Shown in meta shell (`v0.1.0` or current) |
+| **OpenAPI `info.version`** | Contract doc version | Not the Maven/npm artifact version |
 
-## Deployment
+## Shipped baseline
 
-### Hosted (Render)
+*What exists on `main` today.*
 
-| Service | URL |
-|---------|-----|
-| **App (public)** | https://faz-frontend.onrender.com |
-| Backend API | https://faz-backend.onrender.com |
-
-Infrastructure: `render.yaml` — managed Postgres, Docker backend, Docker frontend (nginx). Spring **`prod`** profile uses PostgreSQL; frontend proxies `/api` to the backend public URL.
-
-Free-tier services may spin down after idle; first request after sleep can take ~30s.
-
-### Local production-like stack
-
-`docker-compose.yml` at repo root — same images as Render, with Compose service names for internal DNS (`backend`, `db`).
-
-### Profiles
-
-| Profile | Database | When |
-|---------|----------|------|
-| default | HSQLDB in-memory | Local `mvnw spring-boot:run`, tests |
-| `prod` | PostgreSQL | Compose and Render |
-
-Config: `application.properties` (dev), `application-prod.properties` (prod, env overrides via `DB_*` / `SPRING_DATASOURCE_*`).
+| Area | State |
+| ---- | ----- |
+| REST API | v1 + v2 transactions; CRUD, filters, pagination |
+| Budget planner | List, add/update/delete, filters, sort, pagination; USD/EUR |
+| API explorer | Manifest-driven; v1/v2 verbs; coverage guard |
+| Meta shell | App switcher, version label, per-app theme |
+| Local dev | HSQLDB + Vite proxy |
+| Prod-shaped stack | Docker Compose (Postgres + nginx) |
+| Hosted | Render — [faz-frontend](https://faz-frontend.onrender.com) |
+| Domain hygiene | Book currency centralized; OSIV off; Postgres schema migration hook for prod volumes |
 
 ## Decisions log
 
 | Date | Decision |
-|------|----------|
+| ---- | -------- |
 | 2026-05-26 | Product: personal expense tracker (not business ledger) |
-| 2026-05-26 | MVP scope: core CRUD + filter + deploy |
+| 2026-05-26 | Core scope: CRUD + filter + deploy |
 | 2026-05-27 | Deploy: Render; Compose for local prod-like stack |
-| 2026-05-26 | Budgeting / double-entry: backlog |
-| 2026-05-27 | Post-MVP: two apps (planner + API explorer), meta shell switch, phased roadmap |
-| 2026-05-27 | Versioning: `/api/v1` contract, manifest `v1`, semver in meta shell |
+| 2026-05-27 | Two apps (planner + explorer), meta shell, shared frontend API layer |
+| 2026-05-27 | Versioning: path prefixes, manifest for explorer, semver in shell |
+| 2026-05-31 | Package namespace: `systems.redtape` |
+| 2026-06-01 | v2 API: currency on transactions; v1 preserves currency on partial update |
+| 2026-06-02 | Domain defaults centralized; `open-in-view=false` |
+| 2026-06-02 | README = technical how-to; architecture in DESIGN; ROADMAP session-only |
+| 2026-06-02 | Doc model: ROADMAP informs arcs; CHECKLIST retired; CONCEPT session-only |
