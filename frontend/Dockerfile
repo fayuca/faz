@@ -1,4 +1,4 @@
-FROM node:22-alpine AS build
+FROM node:22.23.4-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -9,7 +9,8 @@ RUN npm run build
 
 FROM nginx:alpine
 
-RUN apk add --no-cache gettext
+RUN apk add --no-cache gettext ca-certificates \
+ && update-ca-certificates
 
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
